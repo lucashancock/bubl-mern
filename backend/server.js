@@ -92,6 +92,7 @@ app.get('/profile', verifyToken, (req, res) => {
     res.json({
         profile_id: userProfile.profile_id,
         username: userProfile.username,
+        password: userProfile.password,
         email: userProfile.email
         // You may exclude the password for security reasons
     });
@@ -139,9 +140,10 @@ app.post('/register', async (req,res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const user_id = 'user_' + crypto.randomUUID();
 
         profiles.push({
-            profile_id: ++cur_id,
+            profile_id: user_id,
             username: username,
             password: hashedPassword,
             email: email
@@ -158,18 +160,19 @@ app.post('/register', async (req,res) => {
 app.post("/profiledelete", verifyToken, async (req, res) => {
     try {
         const { username, password } = req.body;
-
         // Find the user by username
         const existingUserIndex = profiles.findIndex(profile => profile.username === username);
         if (existingUserIndex === -1) {
+            console.log('existing user');
             return res.status(400).json({ error: `No user to delete under ${username}` });
         }
 
         const existingUser = profiles[existingUserIndex];
 
         // Verify the password
-        const passwordMatch = await bcrypt.compare(password, existingUser.password);
-        if (!passwordMatch) {
+        // const passwordMatch = await bcrypt.compare(password, existingUser.password);
+        if (password !== existingUser.password) {
+            console.log('password match')
             return res.status(400).json({ error: 'Password does not match' });
         }
 
@@ -346,16 +349,39 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/idfromuser', verifyToken, (req,res) => {
+    const { username } = req.body;
+    let profile_id = '';
+    profiles.forEach((profile) => {
+        if (profile.username === username) {
+            profile_id = profile.profile_id;
+        }
+    })
+    return res.status(200).json(profile_id);  
+});
+
 // Endpoint for sending a specific users bubls as json to the fronten
-app.get('/mybubls', verifyToken, (req, res) => {
-    const { profile_id, username } = req.body;
-    const mybubls = getBublsForProfile(profile_id);
-    res.json(mybubls);
+app.post('/mybubls', verifyToken, (req, res) => {
+    const { username } = req.body;
+    let profile_id = '';
+    profiles.forEach((profile) => {
+        if (profile.username === username) {
+            profile_id = profile.profile_id;
+        }
+    })
+    if (bubls.length === 0) {
+        return res.json([]);
+    }
+    const bubls_profile = getBublsForProfile(profile_id);
+    if (bubls_profile.length === 0) {
+        return res.json([]);
+    }
+    return res.status(200).json(bubls_profile);
 });
 
 function getBublsForProfile(profileId) {
     const bublsForProfile = [];
-
+    
     bubls.forEach(bubl => {
         if (bubl.creator_id === profileId) {
             bublsForProfile.push({ ...bubl, role: 'creator' });

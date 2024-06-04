@@ -5,10 +5,11 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
-const Profile = () => {
+const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const Profile = () => {
         });
         setProfile(response.data);
         setNewUsername(response.data.username);
+        setNewPassword(response.data.password);
         setNewEmail(response.data.email);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -54,6 +56,22 @@ const Profile = () => {
       setUpdateMessage('Profile update failed. Try a different username/email.');
     }
   };
+
+  const handleProfileDelete = async () => { // TO-DO make so that input for password is not filled in and hash password
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('http://localhost:3000/profiledelete', 
+        { username: newUsername, 
+          password: newPassword }, 
+        { headers: { Authorization: token } }
+      );
+      setUpdateMessage('Profile delete success. Redirecting to home.')
+      onLogout();
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      setUpdateMessage('Profile delete failed. Please try again.');
+    }
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -90,8 +108,20 @@ const Profile = () => {
           onChange={(e) => setNewEmail(e.target.value)} 
         />
       </label>
-      <br />
+      <br /><br />
       <button onClick={handleUpdateProfile}>Update Profile</button>
+      <br /><br />
+      <h2>Delete Profile</h2>
+      <label>
+        Password:
+        <input 
+          type="password" 
+          value={newPassword} 
+          onChange={(e) => setNewPassword(e.target.value)} 
+        />
+      </label>
+      <br /><br />
+      <button onClick={handleProfileDelete}>Delete Profile</button>
       <p>{updateMessage}</p>
     </div>
   );

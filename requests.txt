@@ -1,7 +1,7 @@
 To create a new bubl
 {
     "name": "new bubl",
-    "creator_id": 1,
+    "creator_id": "user_3538dc18-f88e-4866-a886-e932d6f0e336",
     "start_date": "01/01/01",
     "end_date": "01/01/02"
 }
