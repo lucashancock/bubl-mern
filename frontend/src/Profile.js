@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import Banner3 from './Banner3'
 
 const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null);
@@ -82,48 +83,75 @@ const Profile = ({ onLogout }) => {
   }
 
   return (
-    <div>
-      <Link to="/bubls">Back</Link>
-      <br />
-      <h1>Profile Page</h1>
-      <p><strong>User ID:</strong> {profile.profile_id}</p>
-      <p><strong>Username:</strong> {profile.username}</p>
-      <p><strong>Email:</strong> {profile.email}</p>
-
-      <h2>Update Profile</h2>
-      <label>
-        New Username:
-        <input 
-          type="text" 
-          value={newUsername} 
-          onChange={(e) => setNewUsername(e.target.value)} 
-        />
-      </label>
-      <br />
-      <label>
-        New Email:
-        <input 
-          type="email" 
-          value={newEmail} 
-          onChange={(e) => setNewEmail(e.target.value)} 
-        />
-      </label>
-      <br /><br />
-      <button onClick={handleUpdateProfile}>Update Profile</button>
-      <br /><br />
-      <h2>Delete Profile</h2>
-      <label>
-        Password:
-        <input 
-          type="password" 
-          value={newPassword} 
-          onChange={(e) => setNewPassword(e.target.value)} 
-        />
-      </label>
-      <br /><br />
-      <button onClick={handleProfileDelete}>Delete Profile</button>
-      <p>{updateMessage}</p>
+    <>
+    <Banner3 />
+    {/* Back arrow */}
+    <div className="container mt-3 p-0 rounded-lg">
+      <span href="/" className="flex items-center w-max font-bold hover:bg-gray-300 rounded-2xl px-2 pr-4 py-1 ml-3 transition duration-300 ease-in-out">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+         </svg>
+        <Link to="/bubls">back to bubls</Link>
+      </span>
     </div>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">profile page</h1>
+      <div className="mb-4">
+        <p><strong>user ID:</strong> {profile.profile_id}</p>
+        <p><strong>username:</strong> {profile.username}</p>
+        <p><strong>email:</strong> {profile.email}</p>
+      </div>
+
+      <div className="mb-4">
+        <h2 className="text-xl font-bold mb-2">update profile</h2>
+        <label className="block mb-2">
+          new username:
+          <input 
+            type="text" 
+            value={newUsername} 
+            onChange={(e) => setNewUsername(e.target.value)} 
+            className="border border-gray-300 rounded-md px-3 py-2 mt-1 w-full"
+          />
+        </label>
+        <label className="block mb-2">
+          new email:
+          <input 
+            type="email" 
+            value={newEmail} 
+            onChange={(e) => setNewEmail(e.target.value)} 
+            className="border border-gray-300 rounded-md px-3 py-2 mt-1 w-full"
+          />
+        </label>
+        <button 
+          onClick={handleUpdateProfile} 
+          className="bg-blue-900 hover:bg-blue-950 rounded-2xl text-white font-bold py-2 px-4 transition duration-300"
+        >
+          update profile
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <h2 className="text-xl font-bold mb-2">delete profile</h2>
+        <label className="block mb-2">
+          password:
+          <input 
+            type="password" 
+            placeholder="password"
+            onChange={(e) => setNewPassword(e.target.value)} 
+            className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 w-full"
+          />
+        </label>
+        <button 
+          onClick={handleProfileDelete} 
+          className="bg-red-900 hover:bg-red-950 text-white font-bold py-2 px-4 rounded-2xl transition duration-300"
+        >
+          delete profile
+        </button>
+      </div>
+      
+      <p className="text-red-500">{updateMessage}</p>
+    </div>
+    </>
   );
 };
 

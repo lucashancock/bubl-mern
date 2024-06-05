@@ -11,9 +11,7 @@ app.use(cors());
 
 const PORT = 3000;
 const SECRET_KEY = "lucashancock";
-let cur_id = 0;
-let bub_id = 0;
-let photo_id = 0;
+
 /*
 ```
 profile:
@@ -23,7 +21,14 @@ profile:
     email(optional):
 ```
 */
-const profiles = [];
+const profiles = [
+    {
+    "profile_id": "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
+    "username": "lucas",
+    "password": "$2b$10$4WNaIlff4O3sAUB4xRR9tu3M.3GbYjof0mfov3StpLtyqNiQiXspW",
+    "email": "lhancock"
+    }
+];
   
 /*
 ```
@@ -37,7 +42,30 @@ bubls:
     end_date: date (required end date when record will be wiped from storage)
 ```
 */
-const bubls = [];
+const bubls = [
+    {
+        "bubl_id": "mybubl_45650a14-e8a9-4750-a80f-fbad5113f68f",
+        "name": "mybubl",
+        "creator_id": "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
+        "members": [],
+        "admins": [
+            "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1"
+        ],
+        "start_date": "2024-06-05T00:25:45.559Z",
+        "end_date": "2024-06-19T00:00:00.000Z"
+    },
+    {
+        "bubl_id": "bubl2_6c0bfff8-29ae-464c-9ee5-260c600ca8d4",
+        "name": "bubl2",
+        "creator_id": "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
+        "members": [],
+        "admins": [
+            "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1"
+        ],
+        "start_date": "2024-06-05T00:26:28.759Z",
+        "end_date": "2024-06-24T00:00:00.000Z"
+    }
+];
 
 /*
 ```
@@ -170,9 +198,9 @@ app.post("/profiledelete", verifyToken, async (req, res) => {
         const existingUser = profiles[existingUserIndex];
 
         // Verify the password
-        // const passwordMatch = await bcrypt.compare(password, existingUser.password);
-        if (password !== existingUser.password) {
-            console.log('password match')
+        const passwordMatch = await bcrypt.compare(password, existingUser.password);
+        if (!passwordMatch) {
+            console.log('password does not match')
             return res.status(400).json({ error: 'Password does not match' });
         }
 
@@ -240,8 +268,10 @@ app.post("/bublcreate", verifyToken, async (req, res) => {
             return res.status(400).json({ error: "Invalid creator_id" });
         }
 
+        const new_bub_id = name + "_" + crypto.randomUUID();
+
         const newBubl = {
-            bubl_id: ++bub_id,
+            bubl_id: new_bub_id,
             name,
             creator_id,
             members,
@@ -256,6 +286,33 @@ app.post("/bublcreate", verifyToken, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Bubl creation failed"});
     }
+})
+
+app.post("/bubljoin", verifyToken, async (req,res) => {
+    try {
+        const { bubl_id, user_id } = req.body
+        if (!bubl_id || !user_id) {
+            return res.status(400).json({error: "bad input"});
+        } else {
+            // get bubl from bubls array
+            const bubl_ind = bubls.findIndex((bubl) => {
+                return (bubl.bubl_id === bubl_id)
+            });
+            if (bubl_ind === -1) {
+                console.log("bubl not found!")
+                return res.status(404).json({ error: 'User not found' });
+            }
+            const bubl = bubls[bubl_ind];
+            // assuming user_id is a valid user_id sent from the front end
+            bubl.members.push(user_id);
+        }
+        res.status(200).json("successfully joined bubl")
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Bubl join failed' });
+    }
+
 })
 
 // Endpoint for deleting a picture

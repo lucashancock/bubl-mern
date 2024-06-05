@@ -33,13 +33,13 @@ function Register() {
   return (
     <>
     <Banner />
-    <div class="container mt-3 p-0 rounded-lg">
-      <a href="/" class="flex items-center w-max font-bold hover:bg-gray-300 rounded-2xl px-2 pr-4 py-1 ml-3 transition duration-300 ease-in-out">
+    <div className="container mt-3 p-0 rounded-lg">
+      <span href="/" className="flex items-center w-max font-bold hover:bg-gray-300 rounded-2xl px-2 pr-4 py-1 ml-3 transition duration-300 ease-in-out">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
          </svg>
         <Link to="/">back to home</Link>
-    </a>
+    </span>
     </div>
     
     <div className="h-full mt-24 flex justify-center items-center">

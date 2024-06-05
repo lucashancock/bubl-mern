@@ -3,11 +3,11 @@ import React from 'react';
 import { Link } from 'react-router-dom'
 
 
-function Banner2() {
+function Banner3() {
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
-    // Redirect to the login page or any other page after signout
+    // Redirect to the login page or any otherpage after signout
     window.location.href = '/login'; // Redirect to login page after signout
   };
 
@@ -41,4 +41,4 @@ function Banner2() {
   );
 }
 
-export default Banner2;
+export default Banner3;
