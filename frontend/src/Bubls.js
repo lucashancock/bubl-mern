@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Banner2 from './Banner2';
 import BublsTest from './Bublstest';
-import CreateBubl from './CreateBubl';
-import JoinBubl from './JoinBubl';
+import BublHeader from './BublHeader';
 
 function Bubls({ username }) {
   const [bubls, setBubls] = useState([]);
@@ -15,7 +14,7 @@ function Bubls({ username }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post('http://localhost:3000/mybubls', 
-        { username: username }, 
+        {}, 
         { headers: { Authorization: token } }
       );
       setBubls(response.data);
@@ -28,17 +27,15 @@ function Bubls({ username }) {
   useEffect(() => {
     const intervalId = setInterval(() => {
       handleGetBubls();
-    }, 1000);
+    }, 1000); // Refreshed the bubls page every 5 seconds
     return () => clearInterval(intervalId);
   }, []);
 
   return (
     <>
-    <Banner2 />
-    {/* Create a new Bubl */}
-    <CreateBubl username={username}/>
-    <JoinBubl username={username}/>
-    {/* Display Bubls */}
+    <p>{error}</p>
+    <Banner2 />    
+    <BublHeader username={username}/>
     <BublsTest items={bubls}/>
     </>
   );

@@ -1,25 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function JoinBubl( { username }) {
+function JoinBubl({ onSuccess }) {
     const [bubl_id, setBublId] = useState('');
-    const [user_id, setUserId] = useState('');
     const [error, setError] = useState('');
     const [showMessage, setShowMessage] = useState(false);
-
-    useEffect(() => {
-        const fetchId = async () => {
-            console.log("running")
-            const token = localStorage.getItem('token');
-            const profile_id_resp = await axios.post('http://localhost:3000/idfromuser',
-                { username: username },
-                { headers: { Authorization: token } }
-            );
-            const profile_id = profile_id_resp.data;
-            setUserId(profile_id);
-        }
-        fetchId();
-    }, [])
 
     useEffect(() => {
         let timer;
@@ -37,48 +22,46 @@ function JoinBubl( { username }) {
     
         // Clear the timer when the component unmounts or when the message disappears
         return () => clearTimeout(timer);
-      }, [error]);
+    }, [error]);
 
     const handleJoinBubl = async (e) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post('http://localhost:3000/bubljoin',
-                { 
-                  bubl_id: bubl_id, 
-                  user_id: user_id
-                },
+            await axios.post('http://localhost:3000/bubljoin', // response not used as of now
+                { bubl_id: bubl_id },
                 { headers: { Authorization: token } }
             );
-            console.log("here2")
+            // If join is successful, invoke onSuccess callback
+            onSuccess();
         } catch (error) {
             setError("Error joining bubl. Try a different ID.");
         }
-
     }
 
     return (
-        <>
-        <form onSubmit={handleJoinBubl}>
-        <div className="flex m-3 drop-shadow-xl bg-white p-3 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
-            <div className='flex-1 text-center '>
-                <span>bubl id: </span>
-                <input className="rounded-md"
-                type="text"
-                placeholder="join bubl id"
-                value = {bubl_id}
-                onChange={(e) => setBublId(e.target.value)}
-                />
+        <form onSubmit={handleJoinBubl} className="h-full flex flex-col">
+            <div className="flex flex-col m-3 drop-shadow-xl bg-white p-3 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
+                <div className='mb-4'>
+                    <label htmlFor="bublId" className="block mb-2">bubl id:</label>
+                    <input 
+                        id="bublId"
+                        className="w-full p-2 border rounded"
+                        type="text"
+                        placeholder="join bubl id"
+                        value={bubl_id}
+                        onChange={(e) => setBublId(e.target.value)}
+                    />
+                </div>
+                <div className="mt-auto">
+                    <button type="submit" className="bg-black text-white py-2 px-4 w-full rounded-xl hover:bg-gray-800 transition duration-300">
+                        join bubl
+                    </button>
+                </div>
+                {showMessage && <p className="text-center text-red-400 mt-3">{error}</p>}
             </div>
-            <div className='flex-1 text-center'></div>
-            <div className = "flex-1 text-center ">
-              <button type="submit" className='bg-black text-white py-1 px-2 w-48 rounded-xl'>join bubl</button>
-            </div>
-        </div>
         </form>
-        <p className="text-center m-3 text-red-400">{error}</p>
-        </>
-    )
+    );
 }
 
-export default JoinBubl
+export default JoinBubl;

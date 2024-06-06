@@ -23,6 +23,7 @@ function Login({ onLogin }) {
       setError('');
     } catch (error) {
       setError('Invalid credentials');
+      localStorage.setItem('token', '');
     }
   };
 

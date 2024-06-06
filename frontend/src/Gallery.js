@@ -19,9 +19,8 @@ function Gallery() {
         console.error("Error fetching photos");
       }
     };
-
     fetchPhotos();
-  }, []);
+  });
 
   return (
     <>

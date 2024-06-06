@@ -222,7 +222,6 @@ app.post('/login', async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-
         // Compare the password
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
@@ -235,6 +234,7 @@ app.post('/login', async (req, res) => {
         const token = jwt.sign({ profile_id: user.profile_id }, SECRET_KEY);
         res.status(200).json({ token });
     } catch (error) {
+        console.log("here");
         res.status(500).json({ error: 'Login failed' });
     }
 });
@@ -247,8 +247,6 @@ app.post("/profiledelete", verifyToken, async (req, res) => {
         const { profile_id } = req.profile_id;
         const { password } = req.body;
         
-        console.log(profile_id)
-
         // Find the user by profile_id
         const existingUser = profiles.find(profile => profile.profile_id === profile_id);
         if (!existingUser) {
@@ -312,16 +310,16 @@ app.post("/bubldelete", verifyToken, async (req, res) => {
 app.post("/bublcreate", verifyToken, async (req, res) => {
     try {
         // creation of a bubl goes here.
-        const { name, members = [], admins = [creator_id], start_date, end_date } = req.body;
-        const { creator_id } = req.profile_id;
+        const { profile_id } = req.profile_id;
+        const { name, members = [], admins = [profile_id], start_date, end_date } = req.body;
 
         // validate required fields.
-        if (!name || !creator_id || !end_date) {
-            return res.status(400).json({ error: "Missing required fields. Please send atleast name of bubble, creator's id, and the end date."});
+        if (!name || !profile_id || !end_date) {
+            return res.status(400).json({ error: "Missing required fields. Please send atleast name of bubble, and the end date."});
         }
 
         // check that the cretor id exists in profiles.
-        const creatorExists = profiles.some(profile => profile.profile_id === creator_id);
+        const creatorExists = profiles.some(profile => profile.profile_id === profile_id);
         if (!creatorExists) {
             return res.status(404).json({ error: "User does not exist in database." });
         }
@@ -332,7 +330,7 @@ app.post("/bublcreate", verifyToken, async (req, res) => {
         const newBubl = {
             bubl_id: new_bub_id,
             name,
-            creator_id,
+            creator_id: profile_id,
             members,
             admins,
             start_date: new Date(start_date),
@@ -496,7 +494,12 @@ app.post('/bublphotos', verifyToken, async (req,res) => {
             return res.status(404).json("No profile for that id.");
         }
 
-        // TO-DO: check that the user is a part of the bubl first
+        const inMembers = bubl.members.includes(profile_id);
+        const inAdmins = bubl.admins.includes(profile_id);
+        if (!inMembers && !inAdmins) {
+            console.log("here")
+            return res.status(400).json("You are not a part of this bubl. You cannot view its photos.")
+        }
 
         returnArr = [];
         
@@ -558,7 +561,7 @@ app.post('/mybubls', verifyToken, (req, res) => {
     }
     const getBublsForProfile = (pid) => {
         const bublsForProfile = [];
-    
+        // TO-DO: only display bubl_id when the user wants to invite others and is the creator/an admin
         bubls.forEach(bubl => {
             if (bubl.creator_id === profile_id) {
                 bublsForProfile.push({ ...bubl, role: 'creator' });
@@ -568,6 +571,8 @@ app.post('/mybubls', verifyToken, (req, res) => {
                 bublsForProfile.push({ ...bubl, role: 'member' });
             }
         });
+
+        bublsForProfile.push({bubl_id: "addorjoincard"})
 
         return bublsForProfile;
 

@@ -28,9 +28,8 @@ const Profile = ({ onLogout }) => {
         setNewEmail(response.data.email);
       } catch (error) {
         console.error('Error fetching profile:', error);
-        if (error.response && error.response.status === 403) {
-          navigate('/login');
-        }
+        localStorage.setItem('token', '');
+        navigate('/login');
       } finally {
         setLoading(false);
       }
@@ -61,9 +60,8 @@ const Profile = ({ onLogout }) => {
   const handleProfileDelete = async () => { // TO-DO make so that input for password is not filled in and hash password
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:3000/profiledelete', 
-        { username: newUsername, 
-          password: newPassword }, 
+      await axios.post('http://localhost:3000/profiledelete', // response not used as of now
+        { password: newPassword }, 
         { headers: { Authorization: token } }
       );
       setUpdateMessage('Profile delete success. Redirecting to home.')
@@ -75,11 +73,17 @@ const Profile = ({ onLogout }) => {
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <>
+      <Banner3 />
+      <div>Loading...</div>
+    </>;
   }
 
   if (!profile) {
-    return <div>Profile not found</div>;
+    return <>
+    <Banner3 />
+    <div>Profile not found</div>;
+    </>
   }
 
   return (
@@ -97,9 +101,10 @@ const Profile = ({ onLogout }) => {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">profile page</h1>
       <div className="mb-4">
-        <p><strong>user ID:</strong> {profile.profile_id}</p>
+        {/* <p><strong>user ID:</strong> {profile.profile_id}</p> */}
         <p><strong>username:</strong> {profile.username}</p>
         <p><strong>email:</strong> {profile.email}</p>
+        <p><strong>tier:</strong> platinum</p>
       </div>
 
       <div className="mb-4">
@@ -110,7 +115,7 @@ const Profile = ({ onLogout }) => {
             type="text" 
             value={newUsername} 
             onChange={(e) => setNewUsername(e.target.value)} 
-            className="border border-gray-300 rounded-md px-3 py-2 mt-1 w-full"
+            className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 w-full"
           />
         </label>
         <label className="block mb-2">
@@ -119,13 +124,12 @@ const Profile = ({ onLogout }) => {
             type="email" 
             value={newEmail} 
             onChange={(e) => setNewEmail(e.target.value)} 
-            className="border border-gray-300 rounded-md px-3 py-2 mt-1 w-full"
+            className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 w-full"
           />
         </label>
         <button 
           onClick={handleUpdateProfile} 
-          className="bg-blue-900 hover:bg-blue-950 rounded-2xl text-white font-bold py-2 px-4 transition duration-300"
-        >
+          className="bg-blue-900 hover:bg-blue-950 rounded-2xl text-white font-bold py-2 px-4 transition duration-300">
           update profile
         </button>
       </div>
