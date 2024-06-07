@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CreateBubl from './CreateBubl';
 import JoinBubl from './JoinBubl';
+// import { hostname } from './App';
 
 function CreateJoinModal({ closeModal }) {
   const [activeTab, setActiveTab] = useState('create');

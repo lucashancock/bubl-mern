@@ -16,6 +16,7 @@ const PORT = 3000;
 const SECRET_KEY = "lucashancock"; // should be securely stored in the future!!!
 const ENCRYPTION_KEY = "12345123451234512345123451234512" // for the encryption. has to be 32 exact.
 const IV_LENGTH = 16;
+const hostname = "192.168.68.68"
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -587,7 +588,7 @@ app.get('/likedphotos', verifyToken, (req, res) => {
 });
   
 // Endpoint for debugging. Returns profiles list as json.
-app.get('/getusers', verifyToken, (_,res) => {
+app.get('/getusers', verifyToken,  (_,res) => {
     res.json(profiles);
 })
 
@@ -649,6 +650,6 @@ app.post('/mybubls', verifyToken, (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, hostname, () => {
+    console.log(`Server is running on http://${hostname}:${PORT}`);
 });

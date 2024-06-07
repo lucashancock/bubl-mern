@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Banner from './Banner';
-
+import { hostname } from './App';
 function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -12,7 +12,7 @@ function Register() {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/register', {
+      const response = await axios.post(`http://${hostname}:3000/register`, {
         username,
         password,
         email

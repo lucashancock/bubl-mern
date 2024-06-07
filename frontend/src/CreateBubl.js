@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { hostname } from './App';
 
 function CreateBubl({ onSuccess }) {
   const [newBublName, setNewBublName] = useState('');
@@ -15,7 +16,7 @@ function CreateBubl({ onSuccess }) {
         throw new Error("No username or end date provided.")
       }
       
-      await axios.post('http://localhost:3000/bublcreate', // response not used as of now
+      await axios.post(`http://${hostname}:3000/bublcreate`, // response not used as of now
         {
           name: newBublName,
           start_date: new Date().toISOString(),

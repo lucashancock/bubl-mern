@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { hostname } from './App';
 function JoinBubl({ onSuccess }) {
     const [bubl_id, setBublId] = useState('');
     const [error, setError] = useState('');
@@ -28,7 +28,7 @@ function JoinBubl({ onSuccess }) {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:3000/bubljoin', // response not used as of now
+            await axios.post(`http://${hostname}:3000/bubljoin`, // response not used as of now
                 { bubl_id: bubl_id },
                 { headers: { Authorization: token } }
             );

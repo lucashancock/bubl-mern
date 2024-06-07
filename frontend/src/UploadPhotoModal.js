@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { hostname } from './App';
 function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
   const [selectedName, setSelectedName] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -57,7 +57,7 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
     formData.append('bubl_id', bubl_id);
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.post('http://localhost:3000/photoupload', formData, {
+      const response = await axios.post(`http://${hostname}:3000/photoupload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: token,

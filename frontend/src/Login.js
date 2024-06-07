@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Banner from './Banner';
+import { hostname } from './App';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -13,10 +14,11 @@ function Login({ onLogin }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/login', {
+      const response = await axios.post(`http://${hostname}:3000/login`, {
         username,
         password
       });
+      console.log(response)
       const { token } = response.data;
       localStorage.setItem('token', token);
       onLogin(token, username);

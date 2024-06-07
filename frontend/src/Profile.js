@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Banner2 from './Banner2'
+import { hostname } from './App';
 
 const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null);
@@ -19,7 +20,7 @@ const Profile = ({ onLogout }) => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/profile', {
+        const response = await axios.get(`http://${hostname}:3000/profile`, {
           headers: { Authorization: token }
         });
         setProfile(response.data);
@@ -41,7 +42,7 @@ const Profile = ({ onLogout }) => {
   const handleUpdateProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:3000/profile', 
+      const response = await axios.put(`http://${hostname}:3000/profile`, 
         { newUsername, newEmail }, 
         { headers: { Authorization: token } }
       );
@@ -60,7 +61,7 @@ const Profile = ({ onLogout }) => {
   const handleProfileDelete = async () => { // TO-DO make so that input for password is not filled in and hash password
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:3000/profiledelete', // response not used as of now
+      await axios.post(`http://${hostname}:3000/profiledelete`, // response not used as of now
         { password: newPassword }, 
         { headers: { Authorization: token } }
       );

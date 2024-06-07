@@ -5,7 +5,7 @@ import axios from 'axios';
 import Banner2 from './Banner2';
 import BublsTest from './Bublstest';
 import BublHeader from './BublHeader';
-
+import { hostname } from './App';
 function Bubls({ username }) {
   const [bubls, setBubls] = useState([]);
   const [error, setError] = useState('');
@@ -13,7 +13,7 @@ function Bubls({ username }) {
   const handleGetBubls = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:3000/mybubls', 
+      const response = await axios.post(`http://${hostname}:3000/mybubls`, 
         {}, 
         { headers: { Authorization: token } }
       );
