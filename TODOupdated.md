@@ -15,3 +15,8 @@
 - Filtering and search for both Gallery and Bubl cards. (way future)
 
 - SN: localhost api request does not work for mobile. localhost means it only communicates on the local machine, so the phone cannot access. change to local ip so devices on local network can access.
+- Maybe change to email as unique identifier. Join bubl should be a list of invites not a join code.
+- Invite functionality
+- If user deletes profile, remove from all bubls.
+- Finsih button picture modal
+- slide out menu on the right to show users/edit if admin/delete pictures
