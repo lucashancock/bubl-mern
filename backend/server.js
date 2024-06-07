@@ -411,32 +411,33 @@ function decrypt(text) {
     } 
 }
 
-app.post("/photoupload", verifyToken, upload.single('photo'), async (req,res) => {
+app.post("/photoupload", verifyToken, upload.single('photo'), async (req, res) => {
     try {
         const { photoname, bubl_id } = req.body;
         const { profile_id } = req.profile_id;
-       
-        // console.log(profile_id);
-        // console.log(bubl_id);
-        // console.log(photoname);
 
         const bubl = bubls.find((bubl) => bubl.bubl_id === bubl_id);
         if (!bubl) {
             return res.status(404).json({ error: "Bubl doesn't exist." });
         }
-       
 
         const user = profiles.find((profile) => profile.profile_id === profile_id);
         if (!user) {
-            return res.status(404).json({ error: "User doesn't exist." })
+            return res.status(404).json({ error: "User doesn't exist." });
         }
-        
-        // Generate a unique ID for the photo
-        const picture_id = 'picture_' + crypto.randomUUID();
         
         if (!req.file) {
             return res.status(400).send("No file uploaded.");
         }
+
+        // Check if the uploaded file is a photo
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+            return res.status(400).send("Uploaded file is not a valid photo.");
+        }
+
+        // Generate a unique ID for the photo
+        const picture_id = 'picture_' + crypto.randomUUID();
         
         const base64Photo = req.file.buffer.toString('base64');
         
@@ -462,9 +463,10 @@ app.post("/photoupload", verifyToken, upload.single('photo'), async (req,res) =>
 
         res.status(200).json({ message: 'Photo uploaded successfully!' });
     } catch (error) {
-        res.status(500).json({ error: "Error uploading photo." })        
+        res.status(500).json({ error: "Error uploading photo." });
     }
 });
+
 
 // GET request for getting a bubl's photos
 // OUT: the photos of the bubl

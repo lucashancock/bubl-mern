@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import Banner3 from './Banner3'
+import Banner2 from './Banner2'
 
 const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null);
@@ -74,29 +74,34 @@ const Profile = ({ onLogout }) => {
 
   if (loading) {
     return <>
-      <Banner3 />
+      <Banner2 />
       <div>Loading...</div>
     </>;
   }
 
   if (!profile) {
     return <>
-    <Banner3 />
+    <Banner2 />
     <div>Profile not found</div>;
     </>
   }
 
   return (
     <>
-    <Banner3 />
+    <Banner2 />
+    <div className="flex items-center justify-between bg-white py-5 px-4">
+      <div className="border-t border-gray-600 flex-grow"></div>
+      <div className="mx-4 text-xl font-semibold">profile</div>
+      <div className="border-t border-gray-600 flex-grow"></div>
+    </div>
     {/* Back arrow */}
-    <div className="container mt-3 p-0 rounded-lg">
-      <span href="/" className="flex items-center w-max font-bold hover:bg-gray-300 rounded-2xl px-2 pr-4 py-1 ml-3 transition duration-300 ease-in-out">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-         </svg>
-        <Link to="/bubls">back to bubls</Link>
-      </span>
+    <div className="flex mb-6">  
+      <div className="flex flex-1 w-auto justify-start ml-1">
+        <span className="flex items-center font-semibold hover:bg-gray-300 rounded-2xl px-4 py-1 ml-3 transition duration-300 ease-in-out">
+          <i class="fas fa-chevron-left mr-2"></i>
+          <Link to="/bubls">back to bubls</Link>
+        </span>
+      </div>
     </div>
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">profile page</h1>

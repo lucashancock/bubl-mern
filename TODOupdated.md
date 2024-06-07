@@ -20,3 +20,4 @@
 - If user deletes profile, remove from all bubls.
 - Finsih button picture modal
 - slide out menu on the right to show users/edit if admin/delete pictures
+- sort by likes, date added in gallery

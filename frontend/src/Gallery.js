@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Banner2 from './Banner2';
+import UploadPhotoModal from './UploadPhotoModal';
 
 function Gallery() {
   const { bubl_id } = useParams(); // Access bubl_id from the route params
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedName, setSelectedName] = useState('');
   const [likedPhotos, setLikedPhotos] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
-  const [isUploadModalVisible, setUploadModalVisible] = useState(false);
+  const [uploadModalVisible, setUploadModalVisible] = useState(false);
+
 
   const fetchPhotos = async () => {
     try {
@@ -43,67 +43,29 @@ function Gallery() {
     fetchLikedPhotos();
     const interval = setInterval(fetchPhotos, 1000);
     return () => clearInterval(interval);
-  }, [bubl_id]);
+  }, []);
 
-  const handleImageClick = (photo) => {
+  const handleImageOpen = (photo) => {
     setSelectedImage(photo);
     setTimeout(() => setIsVisible(true),0);
   }
 
-  const handleCloseModal = () => {
+  const handleCloseImage = () => {
     setIsVisible(false);
-    setTimeout(() => closeModal(), 300);
+    setTimeout(() => setSelectedImage(null), 300);
   };
-
-  const closeModal = () => {
-    setSelectedImage(null);
-  };
-
+ 
   const openUploadModal = () => {
     setUploadModalVisible(true);
   };
-
+  
   const handleCloseUploadModal = () => {
     setUploadModalVisible(false);
-  }
+  };
 
   const handleDownload = (photo) => {
     console.log("Downloading: " + photo);
   };
-
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
-  const handleSubmit = () => {
-    if (selectedFile && selectedName) {
-      uploadPhoto(selectedFile);
-    } else {
-      console.error('No file/name selected');
-    }
-  };
-
-  const uploadPhoto = async (photoFile) => {
-    const formData = new FormData();
-    formData.append('photo', photoFile);
-    formData.append('photoname', selectedName);
-    formData.append('bubl_id', bubl_id);
-    const token = localStorage.getItem('token');
-    try {
-      const response = await axios.post('http://localhost:3000/photoupload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: token,
-        },
-      });
-      console.log('Photo upload successful:', response.data);
-      // After successful upload, fetch photos again to update the gallery
-      fetchPhotos();
-    } catch (error) {
-      console.error('Error uploading photo:', error);
-    }
-  };
-
 
   const handleLike = async (photoId) => {
     try {
@@ -127,6 +89,7 @@ function Gallery() {
     }
   }
 
+
   return (
     <>
       {error !== "" ? (
@@ -139,13 +102,19 @@ function Gallery() {
             <div className="mx-4 text-xl font-semibold">photo gallery</div>
             <div className="border-t border-gray-600 flex-grow"></div>
           </div>
-          <div className="container mb-6 rounded-lg">
-            <span className="flex items-center w-max font-bold hover:bg-gray-300 rounded-2xl px-2 pr-4 py-1 ml-3 transition duration-300 ease-in-out">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-              </svg>
-              <Link to="/bubls">back to bubls</Link>
-            </span>
+          <div className="flex mb-6">  
+            <div className="flex flex-1 w-auto justify-start ml-1">
+              <span className="flex items-center font-semibold hover:bg-gray-300 rounded-2xl px-4 py-1 ml-3 transition duration-300 ease-in-out">
+                <i class="fas fa-chevron-left mr-2"></i>
+                <Link to="/bubls">back to bubls</Link>
+              </span>
+            </div>
+            <div className="flex flex-1 w-auto justify-end mr-1">
+              <span className="flex items-center font-semibold hover:bg-gray-300 px-4 py-1 mr-3 rounded-2xl transition duration-300 ease-in-out">
+                options
+                <i class="fas fa-chevron-right ml-2"></i>
+              </span>
+            </div>
           </div>
            <div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -153,24 +122,24 @@ function Gallery() {
                 photo.picture_id === "uploadcard" ? (
                   <div key={photo.picture_id} className="bg-white rounded-3xl border flex items-center justify-center aspect-[4/4] drop-shadow-xl transition duration-300 transform hover:drop-shadow-lg">
                     <div className="p-4">
-                      <button className="flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full hover:bg-gray-300 hover:w-20 hover:h-20 transform transition-all duration-300" onClick={openUploadModal}>
-                        <span className="text-2xl font-bold text-gray-700">+</span>
+                      <button className="flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full hover:bg-gray-400 hover:w-20 hover:h-20 transform transition-all duration-300" onClick={openUploadModal}>
+                        <span className="text-2xl font-bold drop-shadow-lg text-gray-700">+</span>
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div key={photo.picture_id} className=" flex flex-col bg-white rounded-3xl border aspect-[4/4] items-center justify-center overflow-hidden shadow-lg transition duration-300 transform hover:shadow-xl">
-                    <div className="outline-dashed flex-grow">
+                  <div key={photo.picture_id} className="cursor-pointer flex flex-col bg-white rounded-3xl border border-black border-1 aspect-[4/4] items-center justify-center overflow-hidden shadow-lg transition duration-300 transform hover:shadow-xl">
+                    <div className="flex-grow">
                       <img
                         className="object-cover w-full h-full rounded-3xl drop-shadow-lg"
                         src={`data:${photo.data.mimeType};base64,${photo.data.bytes}`}
                         alt={photo.data.filename}
-                        onClick={() => handleImageClick(photo)}
+                        onClick={() => handleImageOpen(photo)}
                       />
                     </div>
-                    <div className="absolute bg-white bottom-3 outline-dashed w-11/12 rounded-full p-0 text-center bg-opacity-90">
+                    <div className="absolute bg-white bottom-3 w-11/12 outline-black outline outline-1 rounded-full p-0 text-center bg-opacity-90">
                       <div className="font-semibold">{photo.photoname}</div>
-                      <div onClick={() => handleImageClick(photo)}>
+                      <div onClick={() => handleImageOpen(photo)}>
                       <i class="fa-regular fa-heart mr-1"></i>
                       {photo.likes.length}</div>
                     </div>
@@ -179,6 +148,8 @@ function Gallery() {
               ))}
             </div>
           </div>
+          {/* Modal for displaying image upload */}
+          {uploadModalVisible && <UploadPhotoModal handleCloseUploadModal={handleCloseUploadModal} bubl_id={bubl_id}/>}
           {/* Modal for displaying full-size image */}
           {selectedImage && (
             <div className={`fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
@@ -199,7 +170,7 @@ function Gallery() {
                       </button>
                     )}
                   </div>
-                  <button className="absolute -top-4 -right-4 text-white bg-gray-700 hover:bg-black transition duration-300 rounded-full p-3" onClick={handleCloseModal}>
+                  <button className="absolute -top-4 -right-4 text-white bg-gray-700 hover:bg-black transition duration-300 rounded-full p-3" onClick={handleCloseImage}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -227,16 +198,6 @@ function Gallery() {
               </div>
             </div>
           )}
-          {isUploadModalVisible && <div className={`fixed inset-0 flex items-center justify-center transition-opacity duration-300 ${isUploadModalVisible ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="fixed inset-0 bg-black opacity-50"></div>
-          <div className={`bg-white p-6 rounded-3xl shadow-lg md:w-9/12 lg:w-6/12 w-11/12 h-4/6 flex flex-col transition-transform duration-300 ${isUploadModalVisible ? 'scale-100' : 'scale-95'}`}>
-            <h2 className="text-xl text-center font-bold mb-2">Upload Photo</h2>
-            <input type="file" onChange={handleFileChange} />
-            <input type="text" placeholder="Photo Name" value={selectedName} onChange={(e) => setSelectedName(e.target.value)} />
-            <button onClick={handleSubmit}>Upload</button>
-            <button onClick={handleCloseUploadModal}>Close</button>
-          </div>
-        </div>}
         </>
       )}
     </>
