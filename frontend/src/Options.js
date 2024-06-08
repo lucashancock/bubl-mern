@@ -17,7 +17,7 @@ function Options({ isOpen, onClose }) {
       <div className="fixed inset-0 bg-black opacity-50" onClick={handleClose}></div>
       
       <div className="absolute inset-5">
-        <div className={`absolute top-0 right-0 h-full  bg-white w-full md:w-3/5 transform rounded-3xl shadow-lg transition-transform duration-300`} style={{ transform: `translateX(${isVisible ? 0 : '100%'})`}}>
+        <div className={`absolute top-0 right-0 h-full  bg-white w-full md:w-2/5 transform rounded-3xl shadow-lg transition-transform duration-300`} style={{ transform: `translateX(${isVisible ? 0 : '100%'})`}}>
           <div className="p-4 flex items-center justify-between">
             {/* Content of the slide-out window */}
             <span className="flex flex-grow bg-black text-white justify-center py-1 rounded-3xl text-lg ml-1">options menu</span>

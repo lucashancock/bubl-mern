@@ -153,7 +153,7 @@ return (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {photos.map((photo) => (
               photo.picture_id === "uploadcard" ? (
-                <div key={photo.picture_id} className="bg-white rounded-3xl border flex items-center justify-center aspect-[4/4] drop-shadow-xl transition duration-300 transform hover:drop-shadow-lg">
+                <div key={photo.picture_id} className="bg-white rounded-3xl border flex items-center justify-center aspect-[4/3] drop-shadow-xl transition duration-300 transform hover:drop-shadow-lg">
                   <div className="p-4">
                     <button className="flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full hover:bg-gray-400 hover:w-20 hover:h-20 transform transition-all duration-300" onClick={openUploadModal}>
                       <span className="text-2xl font-bold drop-shadow-lg text-gray-700">+</span>
@@ -161,7 +161,7 @@ return (
                   </div>
                 </div>
               ) : (
-                <div key={photo.picture_id} className="cursor-pointer flex flex-col bg-white rounded-3xl border border-black border-1 aspect-[4/4] items-center justify-center overflow-hidden shadow-lg transition duration-300 transform hover:shadow-xl">
+                <div key={photo.picture_id} className="cursor-pointer flex flex-col bg-white rounded-3xl border border-black border-1 aspect-[4/3] items-center justify-center overflow-hidden shadow-lg transition duration-300 transform hover:shadow-xl">
                   <div className="flex-grow">
                     <img
                       className="object-cover w-full h-full rounded-3xl drop-shadow-lg"
