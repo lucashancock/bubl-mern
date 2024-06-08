@@ -19,7 +19,7 @@ const Profile = ({ onLogout }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const response = await axios.get(`http://${hostname}:3000/profile`, {
           headers: { Authorization: token }
         });
@@ -29,7 +29,7 @@ const Profile = ({ onLogout }) => {
         setNewEmail(response.data.email);
       } catch (error) {
         console.error('Error fetching profile:', error);
-        localStorage.setItem('token', '');
+        sessionStorage.setItem('token', '');
         navigate('/login');
       } finally {
         setLoading(false);
@@ -41,7 +41,7 @@ const Profile = ({ onLogout }) => {
 
   const handleUpdateProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.put(`http://${hostname}:3000/profile`, 
         { newUsername, newEmail }, 
         { headers: { Authorization: token } }
@@ -50,8 +50,8 @@ const Profile = ({ onLogout }) => {
       setProfile(response.data.profile);
       setUpdateMessage('Profile updated successfully');
 
-      // Update the token in localStorage
-      localStorage.setItem('token', response.data.token);
+      // Update the token in sessionStorage
+      sessionStorage.setItem('token', response.data.token);
     } catch (error) {
       console.error('Error updating profile:', error);
       setUpdateMessage('Profile update failed. Try a different username/email.');
@@ -60,7 +60,7 @@ const Profile = ({ onLogout }) => {
 
   const handleProfileDelete = async () => { // TO-DO make so that input for password is not filled in and hash password
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.post(`http://${hostname}:3000/profiledelete`, // response not used as of now
         { password: newPassword }, 
         { headers: { Authorization: token } }

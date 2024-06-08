@@ -9,7 +9,6 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
 
   useEffect(() => {
     setIsVisible(true);
-    return () => setIsVisible(false);
   }, []);
 
   const handleFileChange = (event) => {
@@ -55,7 +54,7 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
     formData.append('photo', photoFile);
     formData.append('photoname', selectedName);
     formData.append('bubl_id', bubl_id);
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     try {
       const response = await axios.post(`http://${hostname}:3000/photoupload`, formData, {
         headers: {
@@ -120,14 +119,14 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
             className="relative flex items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group"
           >
             <span className="material-symbols-outlined transition-all duration-300">upload</span>
-            <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">Upload</span>
+            <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">upload</span>
           </button>
           <button 
             onClick={handleClose} 
             className="relative flex items-center px-2 py-2 ml-2 bg-gray-500 text-white rounded-full focus:outline-none transition-all duration-300 group"
           >
             <span className="material-symbols-outlined transition-all duration-300">close</span>
-            <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">Close</span>
+            <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">close</span>
           </button>
         </div>
       </div>

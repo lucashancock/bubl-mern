@@ -10,29 +10,28 @@ import Gallery from './Gallery';
 export const hostname = "192.168.68.68";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [username, setUsername] = useState(localStorage.getItem('username') || '');
+  const [token, setToken] = useState(sessionStorage.getItem('token') || '');
+  const [username, setUsername] = useState(sessionStorage.getItem('username') || '');
 
   const handleLogin = (token, username) => {
     setToken(token);
     setUsername(username);
-    console.log("username: " + username);
-    localStorage.setItem('token', token);
-    localStorage.setItem('username', username);
+    sessionStorage.setItem('token', token);
+    sessionStorage.setItem('username', username);
   };
 
   const handleLogout = () => {
     setToken('');
     setUsername('');
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('username');
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       setToken(token);
-      setUsername(localStorage.getItem('username') || '');
+      setUsername(sessionStorage.getItem('username') || '');
     }
   }, [])
 
@@ -42,7 +41,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={token ? <Navigate to="/bubls" username={username}/> : <Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/bubls" element={token ? <Bubls username={username} /> : <Navigate to="/login" />} />
+        <Route path="/bubls" element={token ? <Bubls /> : <Navigate to="/login" />} />
         <Route path="/profile" element={token ? <Profile onLogout={handleLogout} /> : <Navigate to="/" />} />
         <Route path="/gallery/:bubl_id" element={<Gallery />} /> 
       </Routes>

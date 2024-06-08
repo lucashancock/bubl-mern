@@ -18,14 +18,21 @@ function Login({ onLogin }) {
         username,
         password
       });
-      console.log(response)
+
       const { token } = response.data;
-      localStorage.setItem('token', token);
+      sessionStorage.setItem('token', token);
+      
       onLogin(token, username);
       setError('');
+
     } catch (error) {
-      setError('Invalid credentials');
-      localStorage.setItem('token', '');
+
+      if (error.response && error.response.data && error.response.data.error) {
+        setError(error.response.data.error);
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+      sessionStorage.removeItem('token');
     }
   };
 
@@ -48,9 +55,9 @@ function Login({ onLogin }) {
             <h3 className="text-3xl font-extrabold">log in</h3>
           </div>
           <div>
-            <label className="text-sm mb-2 block">username</label>
+            <label className="text-sm mb-2 block">username or email</label>
             <div className="relative flex items-center">
-              <input name="username" type="text" required className="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" placeholder="enter username" value={username} onChange={(e) => setUsername(e.target.value)}/>
+              <input name="username" type="text" required className="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" placeholder="enter username or email" value={username} onChange={(e) => setUsername(e.target.value)}/>
             </div>                
           </div>
           <div>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { formatDuration, intervalToDuration } from 'date-fns';
+// import axios from 'axios';
+// import { hostname } from './App';
 
 const CountdownTimer = ({ endDate }) => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(endDate));
@@ -11,6 +13,7 @@ const CountdownTimer = ({ endDate }) => {
 
       if (newTimeLeft.total <= 0) {
         clearInterval(timer);
+
       }
     }, 1000);
 

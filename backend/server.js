@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const bodyParser = require('body-parser')
 const cors = require('cors');
 const multer = require('multer');
+const validator = require('validator');
 
 const app = express();
 app.use(cors());
@@ -32,10 +33,16 @@ profile:
 */
 const profiles = [
     {
-    "profile_id": "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
-    "username": "lucas",
-    "password": "$2b$10$4WNaIlff4O3sAUB4xRR9tu3M.3GbYjof0mfov3StpLtyqNiQiXspW",
-    "email": "lhancock"
+        "profile_id": "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
+        "username": "lucas",
+        "password": "$2b$10$4WNaIlff4O3sAUB4xRR9tu3M.3GbYjof0mfov3StpLtyqNiQiXspW",
+        "email": "lhancock"
+    },
+    {
+        "profile_id": "user_7cb53361-b090-4275-a8f9-7549d3c6b3b2",
+        "username": "bob",
+        "password": "$2b$10$AloiYbzkiquLwt59/ZBKqeZ0A.2ayEokmZ4uDhzN16Djadh8m.kHW",
+        "email": ""
     }
 ];
   
@@ -82,7 +89,7 @@ pictures:
     picture_id: id
     name(optional): string
     creator_id: id
-    likes: int
+    likes: [profile_ids]
     bubl_id: id
     data: photo data goes here?
     end_date: date (to remove them when done using)
@@ -179,16 +186,35 @@ app.put('/profile', verifyToken, (req, res) => {
 // SN: creates a Json Webtoken for authorization based on user_id which is a random UUID.
 app.post('/register', async (req,res) => {
     try {
-        const { username, password, email = ''} = req.body;
+        const { username, password, email } = req.body;
 
-        if (!username || !password) {
-            return res.status(400).json({ error: 'Please enter a valid username and password.'})
+        // Assert we have all three inputs 
+        if (!username || !password || !email ) {
+            return res.status(400).json({ error: 'Please enter a valid username, password, and email.'})
         }
 
-        // Check if the username already exists
-        const existingUser = profiles.find(profile => profile.username === username);
+        // Check if the username or email already exists
+        const existingUser = profiles.find(profile => (profile.username === username) || (profile.email === email));
         if (existingUser) {
-            return res.status(400).json({ error: 'Username already exists' });
+            return res.status(400).json({ error: 'Username or email already exists' });
+        }
+        // Check email is a valid email
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ error: "Please enter a valid email address."})
+        }
+
+
+
+        // Validate and sanitize username
+        const sanitizedUsername = validator.escape(username);
+        if (!/^[a-zA-Z0-9_.-]*$/.test(sanitizedUsername)) {
+            return res.status(400).json({ error: 'Username can only contain letters, numbers, underscores, hyphens, and periods.' });
+        }
+
+        // Validate and sanitize password
+        const sanitizedPassword = validator.escape(password);
+        if (!/^[a-zA-Z0-9!@#$%^&*]{8,}$/.test(sanitizedPassword)) {
+            return res.status(400).json({ error: 'Password must be at least 8 characters long and contain only letters, numbers, and special characters !@#$%^&*.' });
         }
 
         // Encrypt their password and user_id
@@ -214,22 +240,35 @@ app.post('/register', async (req,res) => {
 // IN: username and password
 app.post('/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        let { username, password } = req.body;
 
-        // find user in database if they exist
-        const user = profiles.find(profile => profile.username === username);
+        // Sanitize input
+        username = validator.escape(username).trim();
+        password = validator.escape(password);
+
+        // Validate input
+        if (!validator.isAlphanumeric(username) && !validator.isEmail(username)) {
+            return res.status(400).json({ error: 'Invalid username or email format' });
+        }
+
+        // COMMENTED OUT FOR TESTING PURPOSES
+        // if (!/^[a-zA-Z0-9!@#$%^&*]{8,}$/.test(password)) {
+        //     return res.status(400).json({ error: 'Password must be at least 8 characters long and contain only letters, numbers, and special characters !@#$%^&*.' });
+        // }
+
+        // Find user in database if they exist
+        const user = profiles.find(profile => (profile.username === username) || (profile.email === username));
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
+
         // Compare the password
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid password' })
+            return res.status(401).json({ error: 'Invalid password' });
         }
 
-        // Creat and send JWT token for authentication
-        // secret key now depends on the user id which adds more protection if 
-        // someone knows your username
+        // Create and send JWT token for authentication
         const token = jwt.sign({ profile_id: user.profile_id }, SECRET_KEY);
         res.status(200).json({ token });
     } catch (error) {
@@ -256,6 +295,27 @@ app.post("/profiledelete", verifyToken, async (req, res) => {
         if (!passwordMatch) {
             return res.status(400).json({ error: 'Password does not match' });
         }
+
+        // Delete any bubls they are the creator of
+        // Delete their name from members and admin arrays
+        bubls.forEach((bubl,index) => {
+            if (bubl.creator_id === profile_id) {
+                bubls.splice(index, 1);
+            } else {
+                bubl.admins = bubl.admins.filter(admin => admin !== profile_id);
+                bubl.members = bubl.members.filter(member => member !== profile_id);
+            }
+        })
+
+        // Change the name of creator_id to "deleted"
+        // Remove from likes array
+        pictures.forEach((picture) => {
+            if (picture.creator_id === profile_id) {
+                picture.creator_id = "deleted";
+            }
+            picture.likes = picture.likes.filter(like => like !== profile_id);
+        })
+
 
         // Remove the user from the profiles array
         const existingUserIndex = profiles.findIndex(profile => profile.profile_id === profile_id);
@@ -477,9 +537,6 @@ app.post('/bublphotos', verifyToken, async (req,res) => {
         const { bubl_id } = req.body;
         const { profile_id } = req.profile_id;
 
-        // console.log(bubl_id);
-        // console.log(profile_id);
-
         if (!bubl_id || !profile_id) {
             return res.status(404).json("Error");
         }
@@ -502,19 +559,14 @@ app.post('/bublphotos', verifyToken, async (req,res) => {
 
         returnArr = [];
         
-
         pictures.forEach((picture) => {
             const creator_user = profiles.find(profile => profile.profile_id === picture.creator_id);
-
-            if (!creator_user) {
-                return res.status(404).json("Error finding creator user");
-            }
 
             if (picture.bubl_id === bubl_id) {
                 const decryptedBytes = decrypt(picture.data.bytes);
                 const decryptedPicture = {
                     ...picture,
-                    creator_username: creator_user.username,
+                    creator_username: creator_user ? creator_user.username : 'deleted account',
                     data: {
                         ...picture.data,
                         bytes: decryptedBytes
@@ -524,7 +576,7 @@ app.post('/bublphotos', verifyToken, async (req,res) => {
             }
         })
 
-        return res.status(200).json(returnArr);
+        return res.status(200).json({displayName: bubl.name, returnArr: returnArr});
     } catch (error) {
         return res.status(500).json({ error: "Failed to retrieve bubl photos." });
     }
@@ -627,14 +679,28 @@ app.post('/mybubls', verifyToken, (req, res) => {
         const bublsForProfile = [];
         // TO-DO: only display bubl_id when the user wants to invite others and is the creator/an admin
         bublsForProfile.push({bubl_id: "addorjoincard"})
-        bubls.forEach(bubl => {
-            if (bubl.creator_id === profile_id) {
-                bublsForProfile.push({ ...bubl, role: 'creator' });
-            } else if (bubl.admins.includes(profile_id)) {
-                bublsForProfile.push({ ...bubl, role: 'admin' });
-            } else if (bubl.members.includes(profile_id)) {
-                bublsForProfile.push({ ...bubl, role: 'member' });
+        bubls.forEach((bubl, index) => {
+            // if bubl time is expired, delete it here.
+            const now = new Date();
+            const end = new Date(bubl.end_date);
+            if (isNaN(end.getTime())) {
+                return res.status(400).json("Invalid end_date");
             }
+            const timeLeft = end - now;
+            if (timeLeft <= 0 ) {
+                bubls.splice(index, 1)
+            } else {
+                // otherwise, bubl still valid, push to array.
+                if (bubl.creator_id === profile_id) {
+                    bublsForProfile.push({ ...bubl, role: 'creator' });
+                } else if (bubl.admins.includes(profile_id)) {
+                    bublsForProfile.push({ ...bubl, role: 'admin' });
+                } else if (bubl.members.includes(profile_id)) {
+                    bublsForProfile.push({ ...bubl, role: 'member' });
+                }
+
+            }
+
         });
 
 
@@ -642,11 +708,11 @@ app.post('/mybubls', verifyToken, (req, res) => {
 
     } 
     const bubls_profile = getBublsForProfile(profile_id);
-
+    const displayName = profiles.find((profile) => profile.profile_id === profile_id).username;
     if (bubls_profile.length === 0) {
         return res.json([]);
     }
-    return res.status(200).json(bubls_profile);
+    return res.status(200).json({displayName: displayName, bubls_profile: bubls_profile});
 });
 
 // Start the server

@@ -27,7 +27,7 @@ function JoinBubl({ onSuccess }) {
     const handleJoinBubl = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await axios.post(`http://${hostname}:3000/bubljoin`, // response not used as of now
                 { bubl_id: bubl_id },
                 { headers: { Authorization: token } }

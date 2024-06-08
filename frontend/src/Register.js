@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Banner from './Banner';
 import { hostname } from './App';
+
 function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -12,23 +13,28 @@ function Register() {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post(`http://${hostname}:3000/register`, {
-        username,
-        password,
-        email
-      });
-      setMessage(response.data.message + ". Redirecting to Login page.");
-      setError('');
+        const response = await axios.post(`http://${hostname}:3000/register`, {
+            username,
+            password,
+            email
+        });
+        setMessage(response.data.message + ". Redirecting to Login page.");
+        setError('');
 
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 2000);
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
 
     } catch (error) {
-      setMessage('');
-      setError("Registration failed.");
+        setMessage('');
+        if (error.response && error.response.data && error.response.data.error) {
+            setError(error.response.data.error);
+        } else {
+            setError('Registration failed. Please try again.');
+        }
     }
-  };
+};
+
 
   return (
     <>
@@ -61,9 +67,9 @@ function Register() {
             </div>
           </div>
           <div>
-            <label className="text-sm mb-2 block">email (optional)</label>
+            <label className="text-sm mb-2 block">email</label>
             <div className="relative flex items-center">
-              <input className = "w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" type="email" placeholder="enter email (optional)" value={email} onChange={(e) => setEmail(e.target.value)}/>
+              <input className = "w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" type="email" placeholder="enter email" value={email} onChange={(e) => setEmail(e.target.value)}/>
             </div>
           </div>
           <div className="!mt-10">

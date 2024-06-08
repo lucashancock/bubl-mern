@@ -10,7 +10,7 @@ function CreateBubl({ onSuccess }) {
   const handleCreateBubl = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       
       if (!newBublName || !endDate) {
         throw new Error("No username or end date provided.")

@@ -6,18 +6,21 @@ import Banner2 from './Banner2';
 import BublsTest from './Bublstest';
 import BublHeader from './BublHeader';
 import { hostname } from './App';
-function Bubls({ username }) {
+
+function Bubls() {
   const [bubls, setBubls] = useState([]);
   const [error, setError] = useState('');
+  const [displayName, setDisplayName] = useState('loading...');
 
   const handleGetBubls = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.post(`http://${hostname}:3000/mybubls`, 
         {}, 
         { headers: { Authorization: token } }
       );
-      setBubls(response.data);
+      setBubls(response.data.bubls_profile);
+      setDisplayName(response.data.displayName);
       setError('');
     } catch (error) {
       setError('Error getting your bubls.');
@@ -35,7 +38,7 @@ function Bubls({ username }) {
     <>
     <p>{error}</p>
     <Banner2 />    
-    <BublHeader username={username}/>
+    <BublHeader username={displayName}/>
     <BublsTest items={bubls}/>
     </>
   );

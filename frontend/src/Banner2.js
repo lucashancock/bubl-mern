@@ -6,13 +6,13 @@ import { Link } from 'react-router-dom'
 function Banner2() {
 
   const handleSignOut = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     // Redirect to the login page or any other page after signout
     window.location.href = '/login'; // Redirect to login page after signout
   };
 
   return (
-    <div className="bg-black text-white w-full top-0 drop-shadow-md">
+    <div className="bg-black text-white w-full top-0 drop-shadow-md rounded-b-lg">
       <div className="flex flex-col md:flex-row justify-between items-center p-4">
         <div className='flex flex-col md:flex-row justify-between space-y-2 md:space-y-0 md:space-x-5 items-center'>
           <h1 className="text-xl font-bold">bubl.</h1>

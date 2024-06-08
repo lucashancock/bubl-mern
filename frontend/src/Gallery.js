@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Banner2 from './Banner2';
 import UploadPhotoModal from './UploadPhotoModal';
+import Options from './Options';
 import { hostname } from './App';
 
 function Gallery() {
@@ -13,15 +14,17 @@ function Gallery() {
   const [likedPhotos, setLikedPhotos] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
-
+  const [displayName, setDisplayName] = useState('');
+  const [slideOutVisible, setSlideOutVisible] = useState(false);
 
   const fetchPhotos = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.post(`http://${hostname}:3000/bublphotos`, 
       { bubl_id: bubl_id },
       { headers: { Authorization: token } });
-      setPhotos([ { picture_id: "uploadcard" }, ...response.data ]); // Add the "upload card" only once here
+      setPhotos([ { picture_id: "uploadcard" }, ...response.data.returnArr ]); // Add the "upload card" only once here
+      setDisplayName(response.data.displayName);
       setError("");
     } catch (error) {
       setError("Error");
@@ -30,7 +33,7 @@ function Gallery() {
 
   const fetchLikedPhotos = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.get(`http://${hostname}:3000/likedphotos`, { headers: { Authorization: token } });
       setLikedPhotos(response.data.likedp);
       console.log(likedPhotos);
@@ -45,6 +48,14 @@ function Gallery() {
     const interval = setInterval(fetchPhotos, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleSlideOutOpen = () => {
+    setSlideOutVisible(true);
+  }
+
+  const handleSlideOutClose = () => {
+    setSlideOutVisible(false);
+  }
 
   const handleImageOpen = (photo) => {
     setSelectedImage(photo);
@@ -89,7 +100,7 @@ function Gallery() {
 
   const handleLike = async (photoId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.post(`http://${hostname}:3000/like/${photoId}`, {}, { headers: { Authorization: token } });
       // Add the photoId to likedPhotos state
       setLikedPhotos(prevLikedPhotos => [...prevLikedPhotos, photoId]);
@@ -100,7 +111,7 @@ function Gallery() {
 
   const handleUnlike = async (photoId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.post(`http://${hostname}:3000/unlike/${photoId}`, {}, { headers: { Authorization: token } });
       // Remove the photoId from likedPhotos state
       setLikedPhotos(prevLikedPhotos => prevLikedPhotos.filter(id => id !== photoId));
@@ -119,7 +130,7 @@ return (
         <Banner2 />
         <div className="flex items-center justify-between bg-white py-5 px-4">
           <div className="border-t border-gray-600 flex-grow"></div>
-          <div className="mx-4 text-xl font-semibold">photo gallery</div>
+          <div className="mx-4 text-xl font-semibold">{displayName}'s photo gallery</div>
           <div className="border-t border-gray-600 flex-grow"></div>
         </div>
         <div className="flex mb-6">
@@ -129,12 +140,14 @@ return (
               <Link to="/bubls">back to bubls</Link>
             </span>
           </div>
-          <div className="flex flex-1 w-auto justify-end mr-1">
-            <span className="flex items-center font-semibold hover:bg-gray-300 px-4 py-1 mr-3 rounded-2xl transition duration-300 ease-in-out">
-              options
-              <i className="fas fa-chevron-right ml-2"></i>
-            </span>
-          </div>
+          <button onClick={handleSlideOutOpen}>
+            <div className="flex flex-1 w-auto justify-end mr-1">
+              <span className="flex items-center font-semibold hover:bg-gray-300 px-4 py-1 mr-3 rounded-2xl transition duration-300 ease-in-out">
+                options menu
+                <i className="fa-solid fa-bars ml-2"></i>
+              </span>
+            </div>
+          </button>
         </div>
         <div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -173,7 +186,7 @@ return (
           <div className={`fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
             <div className={`max-w-3xl max-h-full overflow-auto p-6 bg-white rounded-2xl transition-transform duration-300 ${isVisible ? 'scale-100' : 'scale-95'}`}>
               <div className="relative">
-                <div className="absolute w-12 h-12 -top-4 right-10 text-white bg-gray-700 hover:bg-black transition duration-300 rounded-full p-3 flex items-center justify-center">
+                <div className="absolute w-12 h-12 -top-4 right-10 text-white bg-gray-500 hover:bg-gray-700 transition duration-300 rounded-full p-3 flex items-center justify-center">
                   {likedPhotos.includes(selectedImage.picture_id) ? (
                     <button className="align-middle text-red-500 hover:text-red-700 flex items-center justify-center" onClick={() => handleUnlike(selectedImage.picture_id)}>
                       <div className="inline-block text-center mt-1">
@@ -188,12 +201,12 @@ return (
                     </button>
                   )}
                 </div>
-                <button className="absolute -top-4 -right-4 text-white bg-gray-700 hover:bg-black transition duration-300 rounded-full p-3" onClick={handleCloseImage}>
+                <button className="absolute -top-4 -right-4 text-white bg-gray-500 hover:bg-gray-700 transition duration-300 rounded-full p-3" onClick={handleCloseImage}>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                <button type="button" className="absolute -top-4 right-24 w-12 h-12 text-white bg-gray-700 hover:bg-black transition duration-300 rounded-full p-3" onClick={() => handleDownload(selectedImage)}>
+                <button type="button" className="absolute -top-4 right-24 w-12 h-12 text-white bg-gray-500 hover:bg-gray-700 transition duration-300 rounded-full p-3" onClick={() => handleDownload(selectedImage)}>
                   <div className="text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-4 bi bi-box-arrow-down" viewBox="0 0 16 16">
                       <path fillRule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/>
@@ -217,6 +230,8 @@ return (
         )}
       </>
     )}
+
+    {slideOutVisible && <Options isOpen={slideOutVisible} onClose={handleSlideOutClose} />}
   </>
 );
 
