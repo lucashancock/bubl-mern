@@ -13,4 +13,7 @@
 - Filtering and search for both Gallery and Bubl cards. (way future)
 
 - Invite functionality
+    - Works for when the user is registered
+    - In the future, send email
+    - In the future, provide unique endpoint link to send and automatically propogate the invite stuff.
 - sort by likes, date added in gallery
