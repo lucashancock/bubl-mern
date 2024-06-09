@@ -7,7 +7,7 @@ import Bubls from './Bubls';
 import Profile from './Profile';
 import Gallery from './Gallery';
 
-export const hostname = "192.168.68.68";
+export const hostname = "localhost";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem('token') || '');

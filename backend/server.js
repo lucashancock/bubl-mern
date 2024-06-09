@@ -17,7 +17,7 @@ const PORT = 3000;
 const SECRET_KEY = "lucashancock"; // should be securely stored in the future!!!
 const ENCRYPTION_KEY = "12345123451234512345123451234512"; // for the encryption. has to be 32 exact.
 const IV_LENGTH = 16;
-const hostname = "192.168.68.68";
+const hostname = "localhost";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
