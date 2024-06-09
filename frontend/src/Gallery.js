@@ -36,7 +36,7 @@ function Gallery() {
       const token = sessionStorage.getItem('token');
       const response = await axios.get(`http://${hostname}:3000/likedphotos`, { headers: { Authorization: token } });
       setLikedPhotos(response.data.likedp);
-      console.log(likedPhotos);
+      // console.log(likedPhotos);
     } catch (error) {
       console.error('Error fetching liked photos:', error);
     }
@@ -76,7 +76,7 @@ function Gallery() {
   };
 
   const handleDownload = (photo) => {
-    console.log("Downloading: " + photo);
+    // console.log("Downloading: " + photo);
     const byteCharacters = atob(photo.data.bytes);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -95,7 +95,7 @@ function Gallery() {
     
     // Clean up
     URL.revokeObjectURL(link.href);
-    console.log("Done");
+    // console.log("Done");
   };
 
   const handleLike = async (photoId) => {
@@ -231,7 +231,7 @@ return (
       </>
     )}
 
-    {slideOutVisible && <Options isOpen={slideOutVisible} onClose={handleSlideOutClose} />}
+    {slideOutVisible && <Options bubl_id={bubl_id} onClose={handleSlideOutClose} />}
   </>
 );
 

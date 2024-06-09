@@ -30,7 +30,7 @@ function Bubls() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       handleGetBubls();
-    }, 1000); // Refreshed the bubls page every 5 seconds
+    }, 1000); // Refreshed the bubls page every 1 second(s)
     return () => clearInterval(intervalId);
   }, []);
 

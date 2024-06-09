@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import OptionsMenuInvite from './OptionsMenuInvite';
 
-function Options({ isOpen, onClose }) {
+function Options({ bubl_id, onClose }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -30,42 +31,8 @@ function Options({ isOpen, onClose }) {
             </button>
           </div>
           <div className="m-3 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 9rem)' }}>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
-          <p>You are a: owner</p>
-          <p>Members</p>
-          <p>Admins</p>
-          <p>Bubl name: </p>
+            <OptionsMenuInvite bubl_id={bubl_id}/>
+
           </div>
         </div>
       </div>

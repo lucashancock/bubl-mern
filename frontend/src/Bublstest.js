@@ -5,6 +5,7 @@ import CountdownTimer from "./CountdownTimer";
 import { hostname } from "./App";
 import axios from "axios";
 import { format } from "date-fns";
+import InvitesDisplay from "./InvitesDisplay";
 
 function BublsTest({ items }) {
   const [showModal, setShowModal] = useState(false);
@@ -22,7 +23,6 @@ function BublsTest({ items }) {
   };
 
   useEffect(() => {
-    console.log("running");
     const timeout = setTimeout(() => {
       setLoading(false);
     }, 1000);
@@ -116,8 +116,6 @@ function BublsTest({ items }) {
                                 </p>
                               </div>
                             </div>
-                            {item.role === "creator" ? (
-                              <>
                                 <div>
                                   <Link to={`/gallery/${item.bubl_id}`}>
                                     <button className="relative flex ml-1 mr-1 items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group">
@@ -131,6 +129,8 @@ function BublsTest({ items }) {
                                   </Link>
                                 </div>
 
+                            {item.role === "creator" ? (
+                              <>
                                 <div>
                                   <button
                                     className="relative flex items-center px-2 py-2 ml-1 bg-gray-500 text-white hover:bg-red-600 rounded-full transition-all duration-300 group"
@@ -161,6 +161,7 @@ function BublsTest({ items }) {
           {showModal && <CreateJoinModal closeModal={closeModal} />}
         </>
       )}
+      <InvitesDisplay />
     </>
   );
 }

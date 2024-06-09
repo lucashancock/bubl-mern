@@ -36,13 +36,15 @@ const profiles = [
     profile_id: "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
     username: "lucas",
     password: "$2b$10$4WNaIlff4O3sAUB4xRR9tu3M.3GbYjof0mfov3StpLtyqNiQiXspW",
-    email: "lhancock",
+    invites: [],
+    email: "lucas.hancock18@gmail.com",
   },
   {
     profile_id: "user_7cb53361-b090-4275-a8f9-7549d3c6b3b2",
     username: "bob",
     password: "$2b$10$AloiYbzkiquLwt59/ZBKqeZ0A.2ayEokmZ4uDhzN16Djadh8m.kHW",
-    email: "",
+    invites: [],
+    email: "bob123@yahoo.com",
   },
 ];
 
@@ -252,6 +254,7 @@ app.post("/register", async (req, res) => {
       profile_id: user_id,
       username: username,
       password: hashedPassword,
+      invites: [],
       email: email,
     });
     res.status(201).json({ message: "User registered successfully" });
@@ -712,6 +715,162 @@ app.get("/likedphotos", verifyToken, (req, res) => {
   const likedPhotoIds = likedPhotos.map((photo) => photo.picture_id);
 
   return res.status(200).json({ likedp: likedPhotoIds });
+});
+
+app.post("/invite", verifyToken, (req, res) => {
+  const { email, bubl_id } = req.body;
+  const { profile_id } = req.profile_id;
+
+  if (!profile_id) {
+    return res.status(400).json({ error: "Error" });
+  }
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  // Validate email format using validator
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  // TO-DO: do something with invite if the user isn't registered!!
+
+  // Check if the email exists in the profiles array
+  const user = profiles.find(
+    (profile) => profile.email === email && profile.profile_id !== profile_id
+  );
+  if (!user) {
+    return res.status(404).json({ error: "User not found or that is you!" });
+  }
+  const tothisbubl = bubls.find((bubl) => bubl.bubl_id === bubl_id);
+  if (
+    tothisbubl.members.includes(user.profile_id) ||
+    tothisbubl.admins.includes(user.profile_id)
+  ) {
+    return res.status(400).json({ error: "User is already in that bubl." });
+  }
+
+  // Check if the user has already been invited to the same bubl
+  const isInvited = user.invites.some(
+    (invite) => invite.profile_id === profile_id && invite.bubl_id === bubl_id
+  );
+  if (isInvited) {
+    return res
+      .status(400)
+      .json({ error: "User has already been invited to this bubl" });
+  }
+
+  const invitor = profiles.find((profile) => profile.profile_id === profile_id);
+
+  // Track the invite
+  user.invites.push({
+    profile_id,
+    invitor: invitor.username,
+    bubl_id,
+    name: bubl_id.substring(0, bubl_id.indexOf("_")),
+  });
+
+  res
+    .status(200)
+    .json({ message: "Invite sent successfully", invites: user.invites });
+});
+
+app.get("/usersinvites", verifyToken, (req, res) => {
+  const { profile_id } = req.profile_id;
+  const user = profiles.find((profile) => profile.profile_id === profile_id);
+  if (!user) {
+    return res.status(404).json("User not found");
+  }
+  return res.status(200).json(user.invites || []);
+});
+
+app.post("/acceptinvite", verifyToken, (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id } = req.body;
+
+  // Find the bubl with the given bubl_id
+  const bublIndex = bubls.findIndex((bubl) => bubl.bubl_id === bubl_id);
+
+  // If bubl doesn't exist, return error, still remove invite
+  if (bublIndex === -1) {
+    const userIndex = profiles.findIndex(
+      (profile) => profile.profile_id === profile_id
+    );
+    if (userIndex !== -1) {
+      const user = profiles[userIndex];
+      user.invites = user.invites.filter(
+        (invite) => invite.bubl_id !== bubl_id
+      );
+    }
+    return res.status(404).json({ error: "Bubl not found" });
+  }
+
+  // Check if the user is already a member of the bubl
+  if (
+    bubls[bublIndex].members.includes(profile_id) ||
+    bubls[bublIndex].admins.includes(profile_id)
+  ) {
+    // remove their invite
+    const userIndex = profiles.findIndex(
+      (profile) => profile.profile_id === profile_id
+    );
+    if (userIndex !== -1) {
+      const user = profiles[userIndex];
+      user.invites = user.invites.filter(
+        (invite) => invite.bubl_id !== bubl_id
+      );
+    }
+    return res
+      .status(400)
+      .json({ error: "You are already a member of this bubl" });
+  }
+
+  // Add the user to the members list of the bubl
+  bubls[bublIndex].members.push(profile_id);
+
+  // Get rid of the invite from their profile.
+  const userIndex = profiles.findIndex(
+    (profile) => profile.profile_id === profile_id
+  );
+  if (userIndex !== -1) {
+    const user = profiles[userIndex];
+    user.invites = user.invites.filter((invite) => invite.bubl_id !== bubl_id);
+  } else {
+    res.status(404).json({ error: "User could not be found at some point." });
+  }
+
+  res.status(200).json({ message: "Invite accepted successfully" });
+});
+
+app.post("/rejectinvite", verifyToken, (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id } = req.body;
+
+  const userIndex = profiles.findIndex(
+    (profile) => profile.profile_id === profile_id
+  );
+  if (userIndex !== -1) {
+    const user = profiles[userIndex];
+    user.invites = user.invites.filter((invite) => invite.bubl_id !== bubl_id);
+  }
+
+  res.status(200).json({ message: "Invite rejected successfully" });
+});
+
+app.post("/getrole", verifyToken, (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id } = req.body;
+
+  const bubl = bubls.find((bubl) => bubl.bubl_id === bubl_id);
+  if (bubl.creator_id === profile_id) {
+    return res.status(200).json({ role: "creator" });
+  } else if (bubl.admins.includes(profile_id)) {
+    return res.status(200).json({ role: "admin" });
+  } else if (bubl.members.includes(profile_id)) {
+    return res.status(200).json({ role: "member" });
+  }
+  return res.status(400).json("Something went wrong");
 });
 
 // Endpoint for debugging. Returns profiles list as json.
