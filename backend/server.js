@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
 const validator = require("validator");
+const resetDatabase = require("./resetDatabase");
 
 const app = express();
 app.use(cors());
@@ -998,7 +999,9 @@ app.get("/getpics", verifyToken, (_, res) => {
   res.json(pictures);
 });
 
-// Start the server
-app.listen(PORT, hostname, () => {
-  console.log(`Server is running on http://${hostname}:${PORT}`);
+// Start the server after resetting the database
+resetDatabase().then(() => {
+  app.listen(PORT, hostname, () => {
+    console.log(`Server is running on http://${hostname}:${PORT}`);
+  });
 });

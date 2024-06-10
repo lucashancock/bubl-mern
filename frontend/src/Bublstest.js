@@ -10,8 +10,6 @@ import InvitesDisplay from "./InvitesDisplay";
 function BublsTest({ items }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [bannersArr, setBannersArr] = useState([]);
-  const [error, setError] = useState("");
   const [dateSwitch, setDateSwitch] = useState(true);
 
   const openModal = () => {
@@ -32,7 +30,7 @@ function BublsTest({ items }) {
   const deleteBubl = async (bubl_id) => {
     const token = sessionStorage.getItem("token");
     try {
-      const response = await axios.post(
+      await axios.post(
         `http://${hostname}:3000/bubldelete`,
         { bubl_id: bubl_id },
         {
@@ -61,9 +59,6 @@ function BublsTest({ items }) {
             <div className="m-2">
               <div className=" w-full p-0 m-0 grid grid-cols-1 md:grid-cols-1">
                 {items.map((item, index) => {
-                  const banner = bannersArr.find(
-                    (banner) => banner.bubl_id === item.bubl_id
-                  );
                   return (
                     <div key={index} className="m-4 bg-white flex flex-col ">
                       {item.bubl_id === "addorjoincard" ? (

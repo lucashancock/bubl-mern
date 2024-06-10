@@ -1,0 +1,16 @@
+[
+{
+    "profile_id": "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
+    "username": "lucas",
+    "password": "$2b$10$4WNaIlff4O3sAUB4xRR9tu3M.3GbYjof0mfov3StpLtyqNiQiXspW",
+    "invites": [],
+    "email": "lucas.hancock18@gmail.com"
+},
+{
+    "profile_id": "user_7cb53361-b090-4275-a8f9-7549d3c6b3b2",
+    "username": "bob",
+    "password": "$2b$10$AloiYbzkiquLwt59/ZBKqeZ0A.2ayEokmZ4uDhzN16Djadh8m.kHW",
+    "invites": [],
+    "email": "bob123@yahoo.com"
+}
+]
