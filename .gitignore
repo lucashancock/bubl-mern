@@ -67,8 +67,5 @@ storybook-static/
 frontend/storybook-static/
 backend/storybook-static/
 
-# Ignore public folder in frontend (if generated during build)
-frontend/public/
-
 # Ignore backend runtime data
 backend/data/
