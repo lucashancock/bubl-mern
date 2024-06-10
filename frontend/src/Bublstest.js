@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import CreateJoinModal from "./CreateJoinModal";
-import CountdownTimer from "./CountdownTimer";
+import CountdownTimer from "./Components/CountdownTimer";
 import { hostname } from "./App";
 import axios from "axios";
 import { format } from "date-fns";
@@ -116,18 +116,18 @@ function BublsTest({ items }) {
                                 </p>
                               </div>
                             </div>
-                                <div>
-                                  <Link to={`/gallery/${item.bubl_id}`}>
-                                    <button className="relative flex ml-1 mr-1 items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group">
-                                      <span className="material-symbols-outlined transition-all duration-300">
-                                        arrow_forward
-                                      </span>
-                                      <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">
-                                        <span>enter</span>
-                                      </span>
-                                    </button>
-                                  </Link>
-                                </div>
+                            <div>
+                              <Link to={`/gallery/${item.bubl_id}`}>
+                                <button className="relative flex ml-1 mr-1 items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group">
+                                  <span className="material-symbols-outlined transition-all duration-300">
+                                    arrow_forward
+                                  </span>
+                                  <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">
+                                    <span>enter</span>
+                                  </span>
+                                </button>
+                              </Link>
+                            </div>
 
                             {item.role === "creator" ? (
                               <>

@@ -1,5 +1,5 @@
 import React from "react";
-import './Bubble.css'
+import "../Styles/Bubble.css";
 import { Link } from "react-router-dom";
 
 const Bubble = () => {
@@ -20,7 +20,10 @@ const Bubble = () => {
         <div className="text-center text-base md:text-lg text-gray-600 px-4">
           please sign in or create an account above.
         </div>
-        <Link to="/about" className="mt-2 underline underline-offset-2 text-blue-400 hover:font-bold transition-all duration-300">
+        <Link
+          to="/about"
+          className="mt-2 underline underline-offset-2 text-blue-400 hover:font-bold transition-all duration-300"
+        >
           about bubl.
         </Link>
       </div>

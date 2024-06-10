@@ -1,5 +1,5 @@
 import React from "react";
-import Banner from "./Banner";
+import Banner from "../Components/Banner";
 import { Link } from "react-router-dom";
 
 function About() {
