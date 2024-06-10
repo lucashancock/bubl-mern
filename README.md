@@ -20,7 +20,7 @@ Runtime: Node
 npm install
 ```
 
-![[https://stackoverflow.com/questions/8367031/how-do-i-install-package-json-dependencies-in-the-current-directory-using-npm]]
+![https://stackoverflow.com/questions/8367031/how-do-i-install-package-json-dependencies-in-the-current-directory-using-npm]
 
 ---
 
