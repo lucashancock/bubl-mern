@@ -80,7 +80,7 @@ function OptionsMenuInvite({ bubl_id }) {
         </>
       ) : (
         <>
-          <div>
+          <div className="m-2">
             you cannot invite anyone to this bubl. you are not a creator nor
             admin.
           </div>

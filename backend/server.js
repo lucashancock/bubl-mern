@@ -15,10 +15,11 @@ app.use(bodyParser.json());
 
 const PORT = 3000;
 const SECRET_KEY = "lucashancock"; // should be securely stored in the future!!!
-const ENCRYPTION_KEY = "12345123451234512345123451234512"; // for the encryption. has to be 32 exact.
-const IV_LENGTH = 16;
+const ENCRYPTION_KEY = "12345123451234512345123451234512"; // for the encryption. has to be 32 bytes exact. Also should be securely stored somewhere
+const IV_LENGTH = 16; // always 16 for the encryption method I chose.
 const hostname = "localhost";
 
+// Stuff for image upload... not too sure how this works. Maybe refactor later.
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -74,7 +75,7 @@ const bubls = [
     bubl_id: "bubl2_6c0bfff8-29ae-464c-9ee5-260c600ca8d4",
     name: "bubl2",
     creator_id: "user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1",
-    members: [],
+    members: ["user_7cb53361-b090-4275-a8f9-7549d3c6b3b2"],
     admins: ["user_c82aba67-91a8-4d60-822b-6a7d1b0b52e1"],
     start_date: "2024-06-05T00:26:28.759Z",
     end_date: "2024-06-24T00:00:00.000Z",
@@ -491,6 +492,39 @@ app.post("/bubljoin", verifyToken, async (req, res) => {
   }
 });
 
+app.post("/bublleave", verifyToken, (req, res) => {
+  try {
+    const { bubl_id } = req.body;
+    const { profile_id } = req.profile_id;
+
+    if (!bubl_id || !profile_id) {
+      return res
+        .status(400)
+        .json({ error: "Please supply the bubl_id you would like to leave." });
+    }
+
+    // get bubl from bubls array
+    const bubl = bubls.find((bubl) => bubl.bubl_id === bubl_id);
+
+    if (!bubl) {
+      return res.status(404).json({ error: "Bubl not found!" });
+    }
+
+    if (bubl.creator_id === profile_id) {
+      return res
+        .status(400)
+        .json({ error: "You are the creator, you cannot leave." });
+    }
+
+    // filter out user from both members and admins.
+    bubl.members = bubl.members.filter((member) => member !== profile_id);
+    bubl.admins = bubl.admins.filter((admin) => admin !== profile_id);
+    res.status(200).json("successfully left bubl");
+  } catch (error) {
+    res.status(500).json({ error: "Bubl join failed" });
+  }
+});
+
 // POST request for deleting a photo
 // IN: TODO
 // OUT: TODO
@@ -873,33 +907,6 @@ app.post("/getrole", verifyToken, (req, res) => {
   return res.status(400).json("Something went wrong");
 });
 
-// Endpoint for debugging. Returns profiles list as json.
-app.get("/getusers", verifyToken, (_, res) => {
-  res.json(profiles);
-});
-
-// Endpoint for debugging. Returns bubls list as json.
-app.get("/getbubls", verifyToken, (_, res) => {
-  res.json(bubls);
-});
-
-// Endpoint for debugging.
-app.get("/getpics", verifyToken, (_, res) => {
-  res.json(pictures);
-});
-
-// Helper endpoint to get id from username.
-app.post("/idfromuser", verifyToken, (req, res) => {
-  const { username } = req.body;
-  let profile_id = "";
-  profiles.forEach((profile) => {
-    if (profile.username === username) {
-      profile_id = profile.profile_id;
-    }
-  });
-  return res.status(200).json(profile_id);
-});
-
 // POST request for getting a user's bubls they are a part of.
 // OUT: the users bubls
 // IN: token
@@ -947,6 +954,48 @@ app.post("/mybubls", verifyToken, (req, res) => {
   return res
     .status(200)
     .json({ displayName: displayName, bubls_profile: bubls_profile });
+});
+
+app.post("/bublmembers", verifyToken, (req, res) => {
+  const { bubl_id } = req.body;
+  const { profile_id } = req.profile_id;
+
+  const bubl = bubls.find((bubl) => bubl.bubl_id === bubl_id);
+  if (!bubl) return res.status(404).json({ error: "Bubl not found." });
+  if (!bubl.members.includes(profile_id) && !bubl.admins.includes(profile_id)) {
+    return res.status(400).json({
+      errr: "You are not a part of this bubl. You cannot view its members. ",
+    });
+  }
+
+  const members = bubl.members.map((member) => {
+    const name = profiles.find(
+      (profile) => profile.profile_id == member
+    ).username;
+    return name;
+  });
+  const admins = bubl.admins.map((admin) => {
+    const name = profiles.find(
+      (profile) => profile.profile_id == admin
+    ).username;
+    return name;
+  });
+  return res.status(200).json({ members: members, admins: admins });
+});
+
+// Endpoint for debugging. Returns profiles list as json.
+app.get("/getusers", verifyToken, (_, res) => {
+  res.json(profiles);
+});
+
+// Endpoint for debugging. Returns bubls list as json.
+app.get("/getbubls", verifyToken, (_, res) => {
+  res.json(bubls);
+});
+
+// Endpoint for debugging.
+app.get("/getpics", verifyToken, (_, res) => {
+  res.json(pictures);
 });
 
 // Start the server

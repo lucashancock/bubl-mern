@@ -6,6 +6,7 @@ import Register from './Register';
 import Bubls from './Bubls';
 import Profile from './Profile';
 import Gallery from './Gallery';
+import About from './About';
 
 export const hostname = "localhost";
 
@@ -39,6 +40,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={token ? <Navigate to="/bubls" username={username}/> : <Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/bubls" element={token ? <Bubls /> : <Navigate to="/login" />} />
