@@ -8,7 +8,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer"); // for uploading of pictures. ** maybe change later **
 const validator = require("validator"); // for validating user input
-const mongoose = require("mongoose"); // for database manipulation
 const connectDB = require("./db");
 const resetDatabase = require("./resetDatabase");
 const Profile = require("./models/profile"); // see file for more information about Profile
@@ -17,7 +16,8 @@ const Picture = require("./models/picture"); // see file for more info
 
 const app = express();
 const storage = multer.memoryStorage(); // Stuff for image upload... not too sure how this works. Maybe refactor later.
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }); // I think eventually gonna need to store photos in like an Amazon S3 server and then just serve the urls
+
 app.use(cors());
 app.use(bodyParser.json()); // Middleware to parse JSON bodies
 app.use(express.json());

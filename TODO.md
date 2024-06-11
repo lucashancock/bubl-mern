@@ -17,3 +17,8 @@
     - In the future, send email
     - In the future, provide unique endpoint link to send and automatically propogate the invite stuff.
 - sort by likes, date added in gallery
+
+- Change the bubls page to NOT call the api every second or two seconds. That is way too costly. 
+    - Use something like WebRTC instead with a socket based connection.
+    - This one is tough, I couldn't figure it out tonight. 
+    - Maybe add a refresh button instead

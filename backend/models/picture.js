@@ -7,6 +7,8 @@ const pictureSchema = new mongoose.Schema(
       required: true,
     },
     photoname: { type: String, required: true },
+    description: { type: String, required: false, default: "" },
+    tags: [{ type: String, required: false }],
     creator_id: {
       type: String,
       required: true,
