@@ -12,6 +12,7 @@ registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
 function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
   const [selectedName, setSelectedName] = useState("");
+  const [selectedDescription, setSelectedDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [previewURL, setPreviewURL] = useState("");
@@ -34,6 +35,7 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
       const formData = new FormData();
       formData.append("photo", selectedFile[0].file);
       formData.append("photoname", selectedName);
+      formData.append("photodesc", selectedDescription);
       formData.append("bubl_id", bubl_id);
       const token = sessionStorage.getItem("token");
       try {
@@ -82,7 +84,7 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
           <FilePond
             files={selectedFile}
             onupdatefiles={handleFileChange}
-            allowMultiple={false}
+            allowReorder={true}
             server={{
               url: `http://${hostname}:3000`,
               process: {
@@ -98,6 +100,7 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
                 ondata: (formData) => {
                   formData.append("photoname", selectedName);
                   formData.append("bubl_id", bubl_id);
+                  formData.append("photodesc", selectedDescription);
                   return formData;
                 },
               },
@@ -111,25 +114,10 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
           />
         </div>
 
-        {/* {previewURL && (
-          <div className="relative w-full h-2/6 m-auto mb-3">
-            <img
-              src={previewURL}
-              alt="Preview"
-              className="h-full w-full overflow-clip object-cover rounded-3xl"
-            />
-            <div className="flex justify-center">
-              <div className="absolute w-11/12 text-center top-2 bg-white pl-2 pb-1 pr-2 rounded-full">
-                photo preview
-              </div>
-            </div>
-          </div>
-        )} */}
-
         <div className="flex items-center justify-between mt-auto">
           <input
             type="text"
-            placeholder="Photo Name"
+            placeholder="photo name"
             value={selectedName}
             onChange={(e) => setSelectedName(e.target.value)}
             className="flex-grow mr-2 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
@@ -156,6 +144,15 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
               close
             </span>
           </button>
+        </div>
+        <div className="flex">
+          <input
+            type="text"
+            placeholder="optional description"
+            value={selectedDescription}
+            onChange={(e) => setSelectedDescription(e.target.value)}
+            className="flex-grow mt-3 mr-2 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
+          />
         </div>
       </div>
     </div>

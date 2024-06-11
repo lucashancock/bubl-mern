@@ -23,8 +23,26 @@ async function resetDatabase() {
     // Insert new data
     await Profile.insertMany(profilesData);
     await Bubl.insertMany(bublsData);
-    await Picture.insertMany(picturesData);
+    const picturesWithEndDate = picturesData.map((picture) => {
+      const bublEndDate = bublsData.find(
+        (bubl) => bubl.bubl_id === picture.bubl_id
+      )?.end_date;
+      console.log(bublEndDate);
+      return { ...picture, end_date: bublEndDate };
+    });
+    await Picture.insertMany(picturesWithEndDate);
 
+    // Create TTL index on the end_date field
+    // Automatically will delete bubl after end_date expires.
+    // await Bubl.collection.createIndex(
+    //   { end_date: 1 },
+    //   { expireAfterSeconds: 0 }
+    // );
+
+    // await Picture.collection.createIndex(
+    //   { end_date: 1 },
+    //   { expireAfterSeconds: 0 }
+    // );
     console.log("Database reset successfully");
   } catch (error) {
     console.error("Error resetting database:", error);

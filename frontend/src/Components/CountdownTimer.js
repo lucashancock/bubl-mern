@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { intervalToDuration } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import { intervalToDuration } from "date-fns";
 
 const CountdownTimer = ({ endDate }) => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(endDate));
@@ -19,7 +19,7 @@ const CountdownTimer = ({ endDate }) => {
 
   return (
     <div className="w-full text-center">
-      {`${timeLeft.days} days, ${timeLeft.hours} hours`}
+      {`${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes}, ${timeLeft.seconds}`}
     </div>
   );
 };
@@ -29,9 +29,15 @@ const calculateTimeLeft = (endDate) => {
   const duration = intervalToDuration({ start: now, end: new Date(endDate) });
 
   return {
-    days: duration.days,
-    hours: duration.hours,
-    total: duration.seconds + duration.minutes * 60 + duration.hours * 3600 + duration.days * 86400
+    days: duration.days || 0,
+    hours: duration.hours || 0,
+    minutes: duration.minutes || 0,
+    seconds: duration.seconds,
+    total:
+      duration.seconds +
+      duration.minutes * 60 +
+      duration.hours * 3600 +
+      duration.days * 86400,
   };
 };
 

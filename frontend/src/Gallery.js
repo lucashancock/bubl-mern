@@ -46,6 +46,23 @@ function Gallery() {
     }
   };
 
+  const handleDelete = async (selectedImage) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await axios.post(
+        `http://${hostname}:3000/photodelete`,
+        { picture_id: selectedImage.picture_id },
+        {
+          headers: { Authorization: token },
+        }
+      );
+      handleCloseImage();
+      console.log("Successful deletion of photo.");
+    } catch (error) {
+      console.error("Error fetching liked photos:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPhotos();
     fetchLikedPhotos();
@@ -225,84 +242,73 @@ function Gallery() {
                   isVisible ? "scale-100" : "scale-95"
                 }`}
               >
-                <div className="relative">
-                  <div className="absolute w-12 h-12 -top-4 right-10 text-white bg-gray-500 hover:bg-gray-700 transition duration-300 rounded-full p-3 flex items-center justify-center">
+                <div className="relative h-fit flex justify-between mb-3">
+                  <div className="flex-auto mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
                     {likedPhotos.includes(selectedImage.picture_id) ? (
                       <button
-                        className="align-middle text-red-500 hover:text-red-700 flex items-center justify-center"
+                        className="text-red-500 hover:text-red-700 w-full transition-all duration-300"
                         onClick={() => handleUnlike(selectedImage.picture_id)}
                       >
-                        <div className="inline-block text-center mt-1">
-                          <i className="fa-solid fa-heart w-6 h-6"></i>
+                        <div>
+                          <i className="fa-solid fa-heart"></i>
                         </div>
                       </button>
                     ) : (
                       <button
-                        className="text-center text-white hover:text-red-500 flex items-center justify-center"
+                        className="text-white w-full transition-all duration-300"
                         onClick={() => handleLike(selectedImage.picture_id)}
                       >
-                        <div className="inline-block text-center mt-1">
-                          <i className="fa-regular fa-heart w-6 h-6"></i>
+                        <div>
+                          <i className="fa-solid fa-heart"></i>
                         </div>
                       </button>
                     )}
                   </div>
-                  <button
-                    className="absolute -top-4 -right-4 text-white bg-gray-500 hover:bg-gray-700 transition duration-300 rounded-full p-3"
-                    onClick={handleCloseImage}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-6 h-6"
+                  <div className="flex-auto mr-2 bg-black rounded-full flex justify-center items-center">
+                    <button
+                      className="text-white transition duration-300 w-full"
+                      onClick={handleCloseImage}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    className="absolute -top-4 right-24 w-12 h-12 text-white bg-gray-500 hover:bg-gray-700 transition duration-300 rounded-full p-3"
-                    onClick={() => handleDownload(selectedImage)}
-                  >
-                    <div className="text-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        className="w-6 h-4 bi bi-box-arrow-down"
-                        viewBox="0 0 16 16"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"
-                        />
-                        <path
-                          fillRule="evenodd"
-                          d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"
-                        />
-                      </svg>
-                    </div>
-                  </button>
+                      <i className="fa-solid fa-x"></i>
+                    </button>
+                  </div>
+                  <div className="flex-auto mr-2 bg-black rounded-full flex justify-center items-center">
+                    <button
+                      type="button"
+                      className="text-white transition duration-300 w-full"
+                      onClick={() => handleDownload(selectedImage)}
+                    >
+                      <i className="fa-solid fa-arrow-down"></i>
+                    </button>
+                  </div>
+                  <div className="flex-auto bg-black rounded-full flex justify-center items-center">
+                    <button
+                      type="button"
+                      className="text-white transition-all duration-300 w-full"
+                      onClick={() => handleDelete(selectedImage)}
+                    >
+                      <i className="fa-solid fa-trash mx-1"></i>
+                    </button>
+                  </div>
                 </div>
+
                 <img
                   className="mx-auto rounded-2xl"
                   src={`data:${selectedImage.data.mimeType};base64,${selectedImage.data.bytes}`}
                   alt={selectedImage.data.filename}
                 />
                 <div className="mt-2">
-                  <h3 className="text-lg font-medium">
+                  <h3 className="text-2xl font-medium">
                     {selectedImage.photoname}
                   </h3>
                   <p className="text-sm">
-                    uploader: {selectedImage.creator_username}
+                    <span className="font-semibold">uploader: </span>
+                    {selectedImage.creator_username}
                   </p>
-                  <p className="text-sm">bubl id: {selectedImage.bubl_id}</p>
+                  <p className="text-sm">
+                    <span className="font-semibold">description: </span>
+                    {selectedImage.description}
+                  </p>
                 </div>
               </div>
             </div>

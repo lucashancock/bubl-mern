@@ -87,7 +87,10 @@ function BublsTest({ items }) {
                                 onClick={() => setDateSwitch(!dateSwitch)}
                               >
                                 {dateSwitch ? (
-                                  <CountdownTimer endDate={item.end_date} />
+                                  <CountdownTimer
+                                    endDate={item.end_date}
+                                    bubl_id={item.bubl_id}
+                                  />
                                 ) : (
                                   <p>
                                     {format(new Date(item.end_date), "PPpp")}
@@ -107,7 +110,8 @@ function BublsTest({ items }) {
                               <div className="flex items-center">
                                 <i className="fa-solid fa-user" />
                                 <p className="font-semibold ml-2">
-                                  {item.members.length + item.admins.length}
+                                  {item.members.length + item.admins.length} /{" "}
+                                  {item.capacity}
                                 </p>
                               </div>
                             </div>

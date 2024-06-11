@@ -25,9 +25,26 @@ const pictureSchema = new mongoose.Schema(
       mimeType: { type: String },
       filename: { type: String },
     },
+    end_date: { type: Date },
   },
   { collection: "pictures" }
 );
+
+pictureSchema.pre("save", async function (next) {
+  try {
+    if (this.isNew) {
+      const bubl = await this.model("Bubl").findOne({ bubl_id: this.bubl_id });
+      console.log(bubl.name);
+      if (!bubl) {
+        throw new Error("Associated Bubl not found");
+      }
+      this.end_date = bubl.end_date;
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 const Picture = mongoose.model("Picture", pictureSchema);
 
