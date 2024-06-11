@@ -114,11 +114,11 @@ function InvitesDisplay() {
                     <div className="items-center m-2 flex flex-initial justify-between">
                       <div className="flex items-center h-min flex-grow mr-1 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300">
                         <div className="flex-grow font-semibold">
-                          <span>{invite.invitor}</span>
+                          <span>{invite.invitor_username}</span>
                           <span className="text-gray-400 font-normal mx-2">
                             invited you to
                           </span>
-                          <span>{invite.name}</span>
+                          <span>{invite.bubl_name}</span>
                         </div>
                       </div>
                       <div>

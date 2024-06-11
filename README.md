@@ -63,6 +63,18 @@ The terminal may prompt you to say (Y)es to run on another port since the backen
 - Files are currently stored as an encrypted base64 string. This will perhaps change when I migrate to Mongo. Keep that in mind when you are developing.
 - Feel free to refactor any of my messy code! I would really appreciate it (if it still works)... jk.
 
+#### Database
+
+- The backend database is a MongoDB database.
+- Make sure you have Mongodb installed on your machine. See this link for help: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/
+- I recommend downloading with brew. That's what worked for me.
+- Once installed, run `brew services start mongodb-community@7.0` to start up a mongodb local server on your machine. This allows for local development, until we eventually move to a cloud based alternative.
+- You can leave the service running (I think) even when you are done developing. But if you wanna shut it down, run `brew services stop mongodb-community`.
+- For coding the backend, please use mongoose to interact with the database.
+- When you Save the server.js file, the database will reset to the data defined in `pictures.json`, `profiles.json`, and `bubls.json`. This is to aid debugging, for example, if you enter a item into the database that you don't want there. You can also manipulate the .json files in the backend folder if you want to start the server with different values. 
+- `db.js` just starts the mongodb connection.
+- `resetDabase.js` resets the database as mentioned earlier.
+
 ## Any other questions -> reach out to me
 
 ### Built-by: Lucas Hancock
