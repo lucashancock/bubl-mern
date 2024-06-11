@@ -1,37 +1,36 @@
-const connectToDatabase = require("./db");
 const fs = require("fs");
+const connectDB = require("./db");
+const Picture = require("./models/picture");
+const Profile = require("./models/profile");
+const Bubl = require("./models/bubl");
+const mongoose = require("mongoose");
 
 async function resetDatabase() {
   try {
-    const db = await connectToDatabase();
+    // Connect to the database
+    await connectDB();
 
-    // Read and parse JSON files
-    const profiles = JSON.parse(fs.readFileSync("profiles.json", "utf8"));
-    const bubls = JSON.parse(fs.readFileSync("bubls.json", "utf8"));
-    const pictures = JSON.parse(fs.readFileSync("pictures.json", "utf8"));
+    // Read JSON files
+    const profilesData = JSON.parse(fs.readFileSync("profiles.json", "utf8"));
+    const bublsData = JSON.parse(fs.readFileSync("bubls.json", "utf8"));
+    const picturesData = JSON.parse(fs.readFileSync("pictures.json", "utf8"));
 
-    // Drop existing collections
-    await db
-      .collection("profiles")
-      .drop()
-      .catch(() => {});
-    await db
-      .collection("bubls")
-      .drop()
-      .catch(() => {});
-    await db
-      .collection("pictures")
-      .drop()
-      .catch(() => {});
+    // Delete existing data
+    await Profile.deleteMany({});
+    await Bubl.deleteMany({});
+    await Picture.deleteMany({});
 
-    // Insert initial data
-    await db.collection("profiles").insertMany(profiles);
-    await db.collection("bubls").insertMany(bubls);
-    await db.collection("pictures").insertMany(pictures);
+    // Insert new data
+    await Profile.insertMany(profilesData);
+    await Bubl.insertMany(bublsData);
+    await Picture.insertMany(picturesData);
 
     console.log("Database reset successfully");
   } catch (error) {
     console.error("Error resetting database:", error);
+  } finally {
+    // Disconnect from the database
+    await mongoose.disconnect();
   }
 }
 

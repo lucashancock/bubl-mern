@@ -1,16 +1,11 @@
-const { MongoClient } = require("mongodb");
+const mongoose = require("mongoose");
 
-const hostname = "localhost";
-
-const uri = `mongodb://${hostname}:27017`;
-let client;
-
-async function connectToDatabase() {
-  if (!client) {
-    client = new MongoClient(uri);
-    await client.connect();
+async function connectDB() {
+  try {
+    await mongoose.connect("mongodb://localhost:27017/bubl-mern");
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
   }
-  return client.db("bubl-mern");
 }
-
-module.exports = connectToDatabase;
+module.exports = connectDB;

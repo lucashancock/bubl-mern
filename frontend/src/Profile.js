@@ -108,7 +108,7 @@ const Profile = ({ onLogout }) => {
       <div className="flex mb-6">
         <div className="flex flex-1 w-auto justify-start ml-1">
           <span className="flex items-center font-semibold hover:bg-gray-300 rounded-2xl px-4 py-1 ml-3 transition duration-300 ease-in-out">
-            <i class="fas fa-chevron-left mr-2"></i>
+            <i className="fas fa-chevron-left mr-2"></i>
             <Link to="/bubls">back to bubls</Link>
           </span>
         </div>
