@@ -5,6 +5,10 @@ import Banner2 from "./Components/Banner2";
 import UploadPhotoModal from "./UploadPhotoModal";
 import Options from "./Options";
 import { hostname } from "./App";
+import LiveGallery from "./LiveGallery";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 function Gallery() {
   const { bubl_id } = useParams(); // Access bubl_id from the route params
@@ -17,6 +21,24 @@ function Gallery() {
   const [displayName, setDisplayName] = useState("");
   const [slideOutVisible, setSlideOutVisible] = useState(false);
 
+  useEffect(() => {
+    // Join the room based on bubl_id
+    socket.emit("joinRoom", bubl_id);
+
+    // Listen for photo updates in the specific room
+    socket.on("photoUpdate", () => {
+      console.log("new photo update came in, fetching...");
+      fetchPhotos();
+      fetchLikedPhotos();
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      socket.off("photoUpdate");
+      socket.emit("leaveRoom", bubl_id);
+    };
+  }, []);
+
   const fetchPhotos = async () => {
     try {
       const token = sessionStorage.getItem("token");
@@ -26,7 +48,7 @@ function Gallery() {
         { headers: { Authorization: token } }
       );
       setPhotos([{ picture_id: "uploadcard" }, ...response.data.returnArr]); // Add the "upload card" only once here
-      setDisplayName(response.data.displayName);
+      if (!displayName) setDisplayName(response.data.displayName);
       setError("");
     } catch (error) {
       setError("Error");
@@ -40,9 +62,8 @@ function Gallery() {
         headers: { Authorization: token },
       });
       setLikedPhotos(response.data.likedp);
-      // console.log(likedPhotos);
     } catch (error) {
-      console.error("Error fetching liked photos:", error);
+      console.error("Error fetching liked photos.");
     }
   };
 
@@ -57,26 +78,17 @@ function Gallery() {
         }
       );
       handleCloseImage();
-      console.log("Successful deletion of photo.");
     } catch (error) {
-      console.error("Error fetching liked photos:", error);
+      console.error(
+        "Error deleting picture. You may not be the uploader or an admin."
+      );
     }
   };
 
   useEffect(() => {
-    fetchPhotos();
+    fetchPhotos(); // initial fetches
     fetchLikedPhotos();
-    const interval = setInterval(fetchPhotos, 1000);
-    return () => clearInterval(interval);
   }, []);
-
-  const handleSlideOutOpen = () => {
-    setSlideOutVisible(true);
-  };
-
-  const handleSlideOutClose = () => {
-    setSlideOutVisible(false);
-  };
 
   const handleImageOpen = (photo) => {
     setSelectedImage(photo);
@@ -88,35 +100,17 @@ function Gallery() {
     setTimeout(() => setSelectedImage(null), 300);
   };
 
-  const openUploadModal = () => {
-    setUploadModalVisible(true);
-  };
-
-  const handleCloseUploadModal = () => {
-    setUploadModalVisible(false);
-  };
-
   const handleDownload = (photo) => {
-    // console.log("Downloading: " + photo);
     const byteCharacters = atob(photo.data.bytes);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: photo.data.mimeType });
-
-    // Create a temporary link element
+    const byteNumbers = new Uint8Array(
+      Array.from(byteCharacters, (char) => char.charCodeAt(0))
+    );
+    const blob = new Blob([byteNumbers], { type: photo.data.mimeType });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.setAttribute("download", photo.data.filename);
-
-    // Simulate a click on the link to trigger the download
     link.click();
-
-    // Clean up
     URL.revokeObjectURL(link.href);
-    // console.log("Done");
   };
 
   const handleLike = async (photoId) => {
@@ -172,7 +166,7 @@ function Gallery() {
                 <Link to="/bubls">back to bubls</Link>
               </span>
             </div>
-            <button onClick={handleSlideOutOpen}>
+            <button onClick={() => setSlideOutVisible(true)}>
               <div className="flex flex-1 w-auto justify-end mr-1">
                 <span className="flex items-center font-semibold hover:bg-gray-300 px-4 py-1 mr-3 rounded-2xl transition duration-300 ease-in-out">
                   options menu
@@ -192,7 +186,7 @@ function Gallery() {
                     <div className="p-4">
                       <button
                         className="flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full hover:bg-gray-400 hover:w-20 hover:h-20 transform transition-all duration-300"
-                        onClick={openUploadModal}
+                        onClick={() => setUploadModalVisible(true)}
                       >
                         <span className="text-2xl font-bold drop-shadow-lg text-gray-700">
                           +
@@ -227,8 +221,10 @@ function Gallery() {
           </div>
           {uploadModalVisible && (
             <UploadPhotoModal
-              handleCloseUploadModal={handleCloseUploadModal}
+              handleCloseUploadModal={() => setUploadModalVisible(false)}
               bubl_id={bubl_id}
+              // fetchPhotos={fetchPhotos}
+              // fetchLikedPhotos={fetchLikedPhotos}
             />
           )}
           {selectedImage && (
@@ -317,7 +313,7 @@ function Gallery() {
       )}
 
       {slideOutVisible && (
-        <Options bubl_id={bubl_id} onClose={handleSlideOutClose} />
+        <Options bubl_id={bubl_id} onClose={() => setSlideOutVisible(false)} />
       )}
     </>
   );

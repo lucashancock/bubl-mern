@@ -10,7 +10,12 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
-function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
+function UploadPhotoModal({
+  handleCloseUploadModal,
+  bubl_id,
+  // fetchPhotos,
+  // fetchLikedPhotos,
+}) {
   const [selectedName, setSelectedName] = useState("");
   const [selectedDescription, setSelectedDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -51,6 +56,8 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
         );
         console.log("Photo upload successful:", response.data);
         handleClose();
+        // fetchPhotos();
+        // fetchLikedPhotos();
       } catch (error) {
         console.error("Error uploading photo:", error);
       }

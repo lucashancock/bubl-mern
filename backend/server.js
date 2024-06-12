@@ -13,21 +13,52 @@ const resetDatabase = require("./resetDatabase");
 const Profile = require("./models/profile"); // see file for more information about Profile
 const Bubl = require("./models/bubl"); // see file for more info
 const Picture = require("./models/picture"); // see file for more info
-const { start } = require("repl");
-
-const app = express();
-const storage = multer.memoryStorage(); // Stuff for image upload... not too sure how this works. Maybe refactor later.
-const upload = multer({ storage: storage }); // I think eventually gonna need to store photos in like an Amazon S3 server and then just serve the urls
-
-app.use(cors());
-app.use(bodyParser.json()); // Middleware to parse JSON bodies
-app.use(express.json());
+const http = require("http"); // for RTC socket live gallery
+const { Server } = require("socket.io"); // for socket live gallery
 
 const PORT = 3000;
 const SECRET_KEY = "lucashancock"; // should be securely stored in the future!!!
 const ENCRYPTION_KEY = "12345123451234512345123451234512"; // for the encryption. has to be 32 bytes exact. Also should be securely stored somewhere
 const IV_LENGTH = 16; // always 16 for the encryption method I chose.
 const hostname = "localhost";
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+const storage = multer.memoryStorage(); // Stuff for image upload... not too sure how this works. Maybe refactor later.
+const upload = multer({ storage: storage }); // I think eventually gonna need to store photos in like an Amazon S3 server and then just serve the urls
+
+app.use(cors({ origin: "http://localhost:3001", credentials: true }));
+app.use(express.json());
+app.use(bodyParser.json()); // Middleware to parse JSON bodies
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("joinRoom", (room) => {
+    socket.join(room); // Join the room based on bubl_id
+    console.log(`User joined room ${room}`);
+  });
+
+  socket.on("leaveRoom", (room) => {
+    socket.leave(room); // Leave the room based on bubl_id
+    console.log(`User left room ${room}`);
+  });
+
+  socket.on("photoUpdate", (photos) => {
+    io.emit("photoUpdate", photos);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
 
 // once login, the frontend will store this token in either SessionStorage they can access restricted endpoints.
 const verifyToken = (req, res, next) => {
@@ -442,6 +473,7 @@ app.post("/photodelete", verifyToken, async (req, res) => {
     }
     // otherwise delete the photo.
     await Picture.deleteOne({ picture_id: picture_id });
+    io.to(pic.bubl_id).emit("photoUpdate");
     res.status(200).json({ message: "Successfully deleted photo." });
   } catch (error) {
     res.status(500).json({ error: "Photo deletion failed." });
@@ -525,6 +557,7 @@ app.post(
 
       // Store the photo object in the array
       await newPhoto.save();
+      io.to(bubl_id).emit("photoUpdate");
       return res.status(200).json({ message: "Photo uploaded successfully!" });
     } catch (error) {
       return res.status(500).json({ error: "Error uploading photo." });
@@ -606,6 +639,7 @@ app.post("/like/:id", verifyToken, async (req, res) => {
     // Add the user's id to the likes array
     photo.likes.push(profile_id);
     await photo.save();
+    io.to(photo.bubl_id).emit("photoUpdate");
     return res
       .status(200)
       .json({ message: "Photo liked successfully", likes: photo.likes.length });
@@ -631,6 +665,7 @@ app.post("/unlike/:id", verifyToken, async (req, res) => {
   // Remove the user's id from the likes array
   photo.likes.splice(index, 1);
   await photo.save();
+  io.to(photo.bubl_id).emit("photoUpdate");
   return res
     .status(200)
     .json({ message: "Photo unliked successfully", likes: photo.likes.length });
@@ -817,7 +852,6 @@ app.post("/mybubls", verifyToken, async (req, res) => {
       return { ...bubl.toObject(), role: "member" };
     });
 
-    bublsWithRole.unshift({ bubl_id: "addorjoincard" });
     return res
       .status(200)
       .json({ displayName: username, bubls_profile: bublsWithRole });
@@ -923,7 +957,7 @@ app.post("/bubledit", verifyToken, async (req, res) => {
 resetDatabase().then(() => {
   try {
     connectDB(); // connect to
-    app.listen(PORT, hostname, () => {
+    server.listen(PORT, hostname, () => {
       console.log(`Server is running on http://${hostname}:${PORT}`);
     });
   } catch (error) {
