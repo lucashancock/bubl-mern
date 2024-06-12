@@ -338,18 +338,18 @@ app.post("/bublcreate", verifyToken, async (req, res) => {
     const { profile_id } = req.profile_id;
     const {
       name,
+      capacity = 5,
+      privacy,
+      description,
       members = [],
       admins = [profile_id],
-      description,
       start_date,
       end_date,
-      capacity = 2,
     } = req.body;
     // validate required fields.
-    if (!name || !profile_id || !end_date) {
+    if (!name || !profile_id || !end_date || !privacy || !capacity) {
       return res.status(400).json({
-        error:
-          "Missing required fields. Please send atleast name of bubble, and the end date.",
+        error: "Missing required fields",
       });
     }
     // check that the cretor id exists in profiles.
@@ -366,6 +366,7 @@ app.post("/bublcreate", verifyToken, async (req, res) => {
       bubl_id: new_bub_id,
       name,
       creator_id: profile_id,
+      privacy,
       description,
       members,
       admins,
@@ -890,7 +891,7 @@ app.post("/bublmembers", verifyToken, async (req, res) => {
   }
 });
 
-app.post("/bubledit", verifyToken, async (req, res) => {
+app.post("/bublinfo", verifyToken, async (req, res) => {
   try {
     const { bubl_id } = req.body; // Assuming bubl_id is sent as a query parameter
     const { profile_id } = req.profile_id;
@@ -928,6 +929,7 @@ app.post("/bubledit", verifyToken, async (req, res) => {
     return res.status(200).json({
       description: bubl.description,
       name: bubl.name,
+      privacy: bubl.privacy,
       capacity: bubl.capacity,
       start_date: bubl.start_date,
       end_date: bubl.end_date,

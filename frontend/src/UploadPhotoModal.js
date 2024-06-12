@@ -10,12 +10,7 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
-function UploadPhotoModal({
-  handleCloseUploadModal,
-  bubl_id,
-  // fetchPhotos,
-  // fetchLikedPhotos,
-}) {
+function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
   const [selectedName, setSelectedName] = useState("");
   const [selectedDescription, setSelectedDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -36,6 +31,8 @@ function UploadPhotoModal({
     }
   };
   const handleSubmit = async () => {
+    var button = document.getElementById("submitButton");
+    button.disabled = true;
     if (selectedFile.length > 0 && selectedName) {
       const formData = new FormData();
       formData.append("photo", selectedFile[0].file);
@@ -56,9 +53,13 @@ function UploadPhotoModal({
         );
         console.log("Photo upload successful:", response.data);
         handleClose();
+        setTimeout(() => {
+          button.disabled = false;
+        }, 1000);
         // fetchPhotos();
         // fetchLikedPhotos();
       } catch (error) {
+        button.disabled = false;
         console.error("Error uploading photo:", error);
       }
     } else {
@@ -87,7 +88,7 @@ function UploadPhotoModal({
           upload photo
         </h2>
 
-        <div>
+        <div className="mt-2">
           <FilePond
             files={selectedFile}
             onupdatefiles={handleFileChange}
@@ -130,6 +131,7 @@ function UploadPhotoModal({
             className="flex-grow mr-2 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
           />
           <button
+            id="submitButton"
             onClick={handleSubmit}
             className="relative flex items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group"
           >

@@ -26,24 +26,27 @@ function OptionsMenuMembers({ bubl_id }) {
   }, []);
 
   return (
-    <div className="m-2">
-      <div>
-        <h1 className="font-semibold">admins:</h1>
-        <ul>
-          {admins.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
+    <>
+      <span className="m-2 font-semibold">people in this bubl:</span>
+      <div className="m-2 border rounded-2xl p-3">
+        <div>
+          <h1 className="font-semibold">admins:</h1>
+          <ul>
+            {admins.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h1 className="font-semibold">members:</h1>
+          <ul>
+            {members.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </div>
       </div>
-      <div>
-        <h1 className="font-semibold">members:</h1>
-        <ul>
-          {members.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    </>
   );
 }
 

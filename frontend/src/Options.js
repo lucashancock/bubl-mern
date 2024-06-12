@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import OptionsMenuInvite from "./OptionsMenuInvite";
 import OptionsMenuMembers from "./OptionsMenuMembers";
 import OptionsMenuLeave from "./OptionsMenuLeave";
-import OptionsMenuEditBubl from "./OptionsMenuEditBubl";
+import OptionsMenuInfo from "./OptionsMenuInfo";
 
 function Options({ bubl_id, onClose }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -57,7 +57,7 @@ function Options({ bubl_id, onClose }) {
                 <OptionsMenuInvite bubl_id={bubl_id} />
               </div>
               <div className="flex-inital">
-                <OptionsMenuEditBubl bubl_id={bubl_id} />
+                <OptionsMenuInfo bubl_id={bubl_id} />
               </div>
               <div className="flex-grow">
                 <OptionsMenuMembers bubl_id={bubl_id} />

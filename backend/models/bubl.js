@@ -8,6 +8,7 @@ const bublSchema = new mongoose.Schema(
     },
     name: { type: String, required: true },
     description: { type: String, required: false, default: "" },
+    privacy: { type: String, required: true },
     creator_id: {
       type: String,
       required: true,
@@ -23,7 +24,7 @@ const bublSchema = new mongoose.Schema(
     },
     capacity: {
       type: Number,
-      default: 2,
+      default: 5,
     },
     start_date: { type: Date, default: Date.now(), required: true },
     end_date: { type: Date, required: true },

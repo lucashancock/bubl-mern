@@ -48,6 +48,7 @@ function BublsTest() {
         }
       );
       console.log("Bubl delete successful.");
+      handleGetBubls();
     } catch (error) {
       console.error("Bubl delete failed.");
     }

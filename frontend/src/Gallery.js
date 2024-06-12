@@ -5,7 +5,6 @@ import Banner2 from "./Components/Banner2";
 import UploadPhotoModal from "./UploadPhotoModal";
 import Options from "./Options";
 import { hostname } from "./App";
-import LiveGallery from "./LiveGallery";
 import io from "socket.io-client";
 
 const socket = io("http://localhost:3000");
@@ -47,7 +46,7 @@ function Gallery() {
         { bubl_id: bubl_id },
         { headers: { Authorization: token } }
       );
-      setPhotos([{ picture_id: "uploadcard" }, ...response.data.returnArr]); // Add the "upload card" only once here
+      setPhotos(response.data.returnArr); // Add the "upload card" only once here
       if (!displayName) setDisplayName(response.data.displayName);
       setError("");
     } catch (error) {
@@ -160,94 +159,101 @@ function Gallery() {
             <div className="border-t border-gray-600 flex-grow"></div>
           </div>
           <div className="flex mb-6">
-            <div className="flex flex-1 w-auto justify-start ml-1">
+            <div className="flex flex-initial w-auto justify-start ml-1">
               <span className="flex items-center font-semibold hover:bg-gray-300 rounded-2xl px-4 py-1 ml-3 transition duration-300 ease-in-out">
                 <i className="fas fa-chevron-left mr-2"></i>
                 <Link to="/bubls">back to bubls</Link>
               </span>
             </div>
+            <div className="flex-grow flex justify-center">
+              <div className="items-center">
+                <button
+                  className="flex items-center px-2 py-2 bg-black text-white rounded-full transition-all duration-300 group"
+                  onClick={() => setUploadModalVisible(true)}
+                >
+                  <span className="material-symbols-outlined">add</span>
+                  <span className="opacity-0 w-0 text-nowrap transition-all duration-300 group-hover:w-36 sm:group-hover:w-44 group-hover:opacity-100">
+                    upload a photo
+                  </span>
+                </button>
+              </div>
+            </div>
             <button onClick={() => setSlideOutVisible(true)}>
               <div className="flex flex-1 w-auto justify-end mr-1">
-                <span className="flex items-center font-semibold hover:bg-gray-300 px-4 py-1 mr-3 rounded-2xl transition duration-300 ease-in-out">
+                <span className="flex items-center font-semibold hover:bg-gray-300 px-4 py-2 mr-3 rounded-2xl transition duration-300 ease-in-out">
                   options menu
                   <i className="fa-solid fa-bars ml-2"></i>
                 </span>
               </div>
             </button>
           </div>
-          <div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {photos.map((photo) =>
-                photo.picture_id === "uploadcard" ? (
-                  <div
-                    key={photo.picture_id}
-                    className="bg-white rounded-3xl border flex items-center justify-center aspect-[4/3] drop-shadow-xl transition duration-300 transform hover:drop-shadow-lg"
-                  >
-                    <div className="p-4">
-                      <button
-                        className="flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full hover:bg-gray-400 hover:w-20 hover:h-20 transform transition-all duration-300"
-                        onClick={() => setUploadModalVisible(true)}
-                      >
-                        <span className="text-2xl font-bold drop-shadow-lg text-gray-700">
-                          +
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    key={photo.picture_id}
-                    className="cursor-pointer flex flex-col bg-white rounded-3xl border border-black border-1 aspect-[4/3] items-center justify-center overflow-hidden shadow-lg transition duration-300 transform hover:shadow-xl"
-                  >
-                    <div className="flex-grow">
-                      <img
-                        className="object-cover w-full h-full rounded-3xl drop-shadow-lg"
-                        src={`data:${photo.data.mimeType};base64,${photo.data.bytes}`}
-                        alt={photo.data.filename}
-                        onClick={() => handleImageOpen(photo)}
-                      />
-                    </div>
-                    <div className="absolute bg-white bottom-3 w-11/12 outline-black outline outline-1 rounded-full p-0 text-center bg-opacity-90">
-                      <div className="font-semibold">{photo.photoname}</div>
-                      <div onClick={() => handleImageOpen(photo)}>
-                        <i className="fa-regular fa-heart mr-1"></i>
-                        {photo.likes.length}
+
+          <>
+            {photos.length === 0 ? (
+              <>
+                <p>No photos!</p>
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 p-3 md:grid-cols-3 gap-4">
+                  {photos.map((photo) => (
+                    <div
+                      key={photo.picture_id}
+                      className="cursor-pointer flex flex-col rounded-3xl border aspect-[16:9] items-center justify-center overflow-hidden transition duration-300 transform hover:shadow-xl"
+                    >
+                      <div className="flex-grow">
+                        <img
+                          className="object-cover w-full h-full rounded-3xl drop-shadow-lg"
+                          src={`data:${photo.data.mimeType};base64,${photo.data.bytes}`}
+                          alt={photo.data.filename}
+                          onClick={() => handleImageOpen(photo)}
+                        />
+                      </div>
+                      <div className="absolute flex bg-white bottom-3 w-11/12 outline-black border rounded-full bg-opacity-60">
+                        <div
+                          className="flex flex-auto justify-center items-center font-semibold"
+                          onClick={() => handleImageOpen(photo)}
+                        >
+                          <span className="mr-3 text-center items-center justify-center">
+                            {photo.photoname}
+                          </span>
+                          <i className="fa-regular fa-heart mr-1"></i>
+                          {photo.likes.length}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+
           {uploadModalVisible && (
             <UploadPhotoModal
               handleCloseUploadModal={() => setUploadModalVisible(false)}
               bubl_id={bubl_id}
-              // fetchPhotos={fetchPhotos}
-              // fetchLikedPhotos={fetchLikedPhotos}
             />
           )}
+
           {selectedImage && (
             <div
-              className={`fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${
+              className={`absolute inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${
                 isVisible ? "opacity-100" : "opacity-0"
               }`}
             >
               <div
-                className={`max-w-3xl max-h-full overflow-auto p-6 bg-white rounded-2xl transition-transform duration-300 ${
-                  isVisible ? "scale-100" : "scale-95"
+                className={`w-max h-max overflow-auto p-2 bg-white rounded-2xl transition-transform duration-300 ${
+                  isVisible ? "scale-100" : "scale-75"
                 }`}
               >
-                <div className="relative h-fit flex justify-between mb-3">
-                  <div className="flex-auto mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
+                <div className="absolute left-3 top-3 h-fit flex mb-3">
+                  <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
                     {likedPhotos.includes(selectedImage.picture_id) ? (
                       <button
                         className="text-red-500 hover:text-red-700 w-full transition-all duration-300"
                         onClick={() => handleUnlike(selectedImage.picture_id)}
                       >
-                        <div>
-                          <i className="fa-solid fa-heart"></i>
-                        </div>
+                        <i className="fa-solid fa-heart"></i>
                       </button>
                     ) : (
                       <button
@@ -260,7 +266,7 @@ function Gallery() {
                       </button>
                     )}
                   </div>
-                  <div className="flex-auto mr-2 bg-black rounded-full flex justify-center items-center">
+                  <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
                     <button
                       className="text-white transition duration-300 w-full"
                       onClick={handleCloseImage}
@@ -268,7 +274,7 @@ function Gallery() {
                       <i className="fa-solid fa-x"></i>
                     </button>
                   </div>
-                  <div className="flex-auto mr-2 bg-black rounded-full flex justify-center items-center">
+                  <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
                     <button
                       type="button"
                       className="text-white transition duration-300 w-full"
@@ -277,7 +283,7 @@ function Gallery() {
                       <i className="fa-solid fa-arrow-down"></i>
                     </button>
                   </div>
-                  <div className="flex-auto bg-black rounded-full flex justify-center items-center">
+                  <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
                     <button
                       type="button"
                       className="text-white transition-all duration-300 w-full"
@@ -293,7 +299,7 @@ function Gallery() {
                   src={`data:${selectedImage.data.mimeType};base64,${selectedImage.data.bytes}`}
                   alt={selectedImage.data.filename}
                 />
-                <div className="mt-2">
+                <div className="m-2">
                   <h3 className="text-2xl font-medium">
                     {selectedImage.photoname}
                   </h3>

@@ -46,14 +46,14 @@ function JoinBubl({ onSuccess }) {
 
   return (
     <form onSubmit={handleJoinBubl} className="h-full flex flex-col">
-      <div className="flex flex-col m-3 drop-shadow-xl bg-white p-3 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
+      <div className="flex flex-col m-3 border bg-white p-4 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
         <div className="mb-4">
           <label htmlFor="bublId" className="block mb-2">
             bubl id:
           </label>
           <input
             id="bublId"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 px-3 border rounded-2xl"
             type="text"
             placeholder="join bubl id"
             value={bubl_id}
