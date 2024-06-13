@@ -8,14 +8,8 @@
 - Implement capacity on # of active user bubls. Join certain numbers for different tiers.
 
 - Invite functionality
-    - Works for when the user is registered
     - In the future, send email
     - In the future, provide unique endpoint link to send and automatically propogate the invite stuff.
-
-- Change the bubls page to NOT call the api every second or two seconds. That is way too costly. 
-    - Use something like WebRTC instead with a socket based connection.
-    - This one is tough, I couldn't figure it out tonight. 
-    - Maybe add a refresh button instead
 
 - Things to look into before beta test:
     - Expiration of photos and bubls needs to be implemented

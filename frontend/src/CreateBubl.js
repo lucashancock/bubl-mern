@@ -63,7 +63,7 @@ function CreateBubl({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleCreateBubl} className="h-full flex flex-col">
+    <form onSubmit={handleCreateBubl} className=" flex flex-col">
       <div className="flex flex-col flex-grow m-3 border bg-white p-4 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
         <div className="mb-4">
           <label className="block mb-2">bubl name:</label>

@@ -39,16 +39,16 @@ app.use(express.json());
 app.use(bodyParser.json()); // Middleware to parse JSON bodies
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  // console.log("A user connected");
 
   socket.on("joinRoom", (room) => {
     socket.join(room); // Join the room based on bubl_id
-    console.log(`User joined room ${room}`);
+    // console.log(`User joined room ${room}`);
   });
 
   socket.on("leaveRoom", (room) => {
     socket.leave(room); // Leave the room based on bubl_id
-    console.log(`User left room ${room}`);
+    // console.log(`User left room ${room}`);
   });
 
   socket.on("photoUpdate", (photos) => {
@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    // console.log("User disconnected");
   });
 });
 
@@ -933,6 +933,56 @@ app.post("/bublinfo", verifyToken, async (req, res) => {
       capacity: bubl.capacity,
       start_date: bubl.start_date,
       end_date: bubl.end_date,
+    });
+  } catch (error) {
+    console.error("Error fetching Bubl info:", error);
+    return res.status(500).json({ error: "Fatal error fetching Bubl info." });
+  }
+});
+
+app.post("/bubledit", verifyToken, async (req, res) => {
+  try {
+    const { bubl_id, name, description, privacy } = req.body; // Assuming bubl_id is sent as a query parameter
+    const { profile_id } = req.profile_id;
+
+    if (!profile_id)
+      return res.status(400).json({ error: "Please login again." });
+
+    const user = await Profile.findOne({ profile_id: profile_id });
+
+    if (!user) {
+      return res.status(400).json({ error: "User not found. " });
+    }
+
+    // Check if bubl_id is provided
+    if (!bubl_id) {
+      return res.status(400).json({ error: "Bubl ID is required." });
+    }
+
+    // Find the Bubl by ID
+    const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+
+    // Check if the Bubl exists
+    if (!bubl) {
+      return res.status(404).json({ error: "Bubl not found." });
+    }
+    // check user is a the creator
+    if (profile_id !== bubl.creator_id) {
+      console.log("Here");
+      return res.status(400).json({
+        error: "You are not the creator, you cannot edit.",
+      });
+    }
+
+    if (name) bubl.name = name;
+    if (description) bubl.description = description;
+    if (privacy) bubl.privacy = privacy;
+
+    await bubl.save();
+
+    // Return information about the Bubl
+    return res.status(200).json({
+      message: "Bubl edit successful",
     });
   } catch (error) {
     console.error("Error fetching Bubl info:", error);

@@ -6,15 +6,25 @@ import { hostname } from "./App";
 import axios from "axios";
 import { format } from "date-fns";
 import InvitesDisplay from "./InvitesDisplay";
+import EditBublModal from "./EditBublModal";
 
 function BublsTest() {
   const [showModal, setShowModal] = useState(false);
   const [dateSwitch, setDateSwitch] = useState(true);
   const [bubls, setBubls] = useState([]);
   const [error, setError] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentBublId, setCurrentBublId] = useState(null);
 
-  const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
+  const openEditModal = (bublId) => {
+    setCurrentBublId(bublId);
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setCurrentBublId(null);
+  };
 
   const handleGetBubls = async () => {
     try {
@@ -58,12 +68,21 @@ function BublsTest() {
     <>
       <div className="relative flex justify-center">
         <button
-          className="relative flex items-center px-2 py-2 bg-black text-white rounded-full transition-all duration-300 group"
-          onClick={openModal}
+          className="relative flex items-center px-2 py-2 bg-black text-white rounded-full transition-all duration-300 group mr-2"
+          onClick={() => setShowModal(true)}
         >
           <span className="material-symbols-outlined">add</span>
           <span className="opacity-0 w-0 text-nowrap transition-all duration-300 group-hover:w-40 group-hover:opacity-100">
             create or join a bubl
+          </span>
+        </button>
+        <button
+          className="relative flex items-center px-2 py-2 bg-white text-black outline outline-1 rounded-full transition-all duration-300 group ml-2"
+          onClick={handleGetBubls}
+        >
+          <span className="material-symbols-outlined">refresh</span>
+          <span className="opacity-0 w-0 text-nowrap transition-all duration-300 group-hover:w-40 group-hover:opacity-100">
+            refresh bubls
           </span>
         </button>
       </div>
@@ -127,16 +146,27 @@ function BublsTest() {
                         </Link>
                       </div>
                       {item.role === "creator" && (
-                        <div>
+                        <div className="flex">
                           <button
-                            className="relative flex items-center px-2 py-2 ml-1 bg-gray-500 text-white hover:bg-red-600 rounded-full transition-all duration-300 group"
-                            onClick={() => deleteBubl(item.bubl_id)}
+                            className="relative flex items-center px-2 py-2 ml-1 bg-gray-500 text-white hover:bg-gray-700 rounded-full transition-all duration-300 group"
+                            onClick={() => openEditModal(item.bubl_id)}
                           >
-                            <i className="fa-solid fa-trash mx-1"></i>
+                            <i className="fa-solid fa-edit mx-1"></i>
                             <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">
-                              delete
+                              edit
                             </span>
                           </button>
+                          <div className="flex">
+                            <button
+                              className="relative flex items-center px-2 py-2 ml-1 bg-gray-500 text-white hover:bg-red-600 rounded-full transition-all duration-300 group"
+                              onClick={() => deleteBubl(item.bubl_id)}
+                            >
+                              <i className="fa-solid fa-trash mx-1"></i>
+                              <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">
+                                delete
+                              </span>
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -148,8 +178,15 @@ function BublsTest() {
         )}
         {showModal && (
           <CreateJoinModal
-            closeModal={closeModal}
+            closeModal={() => setShowModal(false)}
             handleGetBubls={handleGetBubls}
+          />
+        )}
+        {showEditModal && (
+          <EditBublModal
+            closeModal={closeEditModal}
+            handleGetBubls={handleGetBubls}
+            bublId={currentBublId}
           />
         )}
       </>
