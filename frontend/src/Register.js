@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Banner from "./Components/Banner";
 import { hostname } from "./App";
+import { useLocation } from "react-router-dom";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -11,12 +12,19 @@ function Register() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const token = query.get("token");
+  const bubl_id = query.get("bubl_id");
+
   const handleRegister = async () => {
     try {
       const response = await axios.post(`http://${hostname}:3000/register`, {
         username,
         password,
         email,
+        token,
+        bubl_id,
       });
       setMessage(response.data.message + ". Redirecting to Login page.");
       setError("");

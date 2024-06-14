@@ -75,55 +75,75 @@ function InvitesDisplay({ handleGetBubls }) {
           <div className="mx-6">
             {invites.length > 0 ? (
               invites.map((invite) => (
-                <div
-                  key={invite.bubl_id}
-                  className="items-center m-2 flex flex-initial justify-between"
-                >
-                  <div className="flex items-center h-min flex-grow mr-1 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300">
-                    <div className="flex-grow font-semibold">
-                      <span>{invite.invitor_username}</span>
-                      <span className="text-gray-400 font-normal mx-2">
-                        invited you to
+                <>
+                  <div className="flex flex-1 text-gray-500 items-center justify-center ">
+                    <button onClick={fetchInvites}>
+                      <span className="material-symbols-outlined outline outline-white hover:outline-gray-500 hover:rotate-[360deg] p-2 rounded-full transition-all duration-300">
+                        refresh
                       </span>
-                      <span>{invite.bubl_name}</span>
+                    </button>
+                  </div>
+                  <div
+                    key={invite.bubl_id}
+                    className="items-center m-2 flex flex-initial justify-between"
+                  >
+                    <div className="flex items-center h-min flex-grow mr-1 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300">
+                      <div className="flex-grow font-semibold">
+                        <span>{invite.invitor_username}</span>
+                        <span className="text-gray-400 font-normal mx-2">
+                          invited you to
+                        </span>
+                        <span>{invite.bubl_name}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <button
+                        className="relative flex ml-1 mr-1 items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group"
+                        onClick={() =>
+                          handleInviteAction(invite.bubl_id, "accept")
+                        }
+                      >
+                        <span className="material-symbols-outlined transition-all duration-300">
+                          check
+                        </span>
+                        <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">
+                          <span>accept</span>
+                        </span>
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        className="relative flex items-center px-2 py-2 ml-2 bg-red-600 text-white rounded-full focus:outline-none transition-all duration-300 group"
+                        onClick={() =>
+                          handleInviteAction(invite.bubl_id, "reject")
+                        }
+                      >
+                        <span className="material-symbols-outlined transition-all duration-300">
+                          close
+                        </span>
+                        <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">
+                          reject
+                        </span>
+                      </button>
                     </div>
                   </div>
-                  <div>
-                    <button
-                      className="relative flex ml-1 mr-1 items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group"
-                      onClick={() =>
-                        handleInviteAction(invite.bubl_id, "accept")
-                      }
-                    >
-                      <span className="material-symbols-outlined transition-all duration-300">
-                        check
-                      </span>
-                      <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">
-                        <span>accept</span>
-                      </span>
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      className="relative flex items-center px-2 py-2 ml-2 bg-red-600 text-white rounded-full focus:outline-none transition-all duration-300 group"
-                      onClick={() =>
-                        handleInviteAction(invite.bubl_id, "reject")
-                      }
-                    >
-                      <span className="material-symbols-outlined transition-all duration-300">
-                        close
-                      </span>
-                      <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">
-                        reject
-                      </span>
-                    </button>
-                  </div>
-                </div>
+                </>
               ))
             ) : (
-              <div className="text-center w-full font-semibold text-gray-500 opacity-70 mt-5">
-                no invites found
-              </div>
+              <>
+                <div className="flex flex-col">
+                  <div className="flex flex-1 text-gray-500 items-center justify-center ">
+                    <button onClick={fetchInvites}>
+                      <span className="material-symbols-outlined outline outline-white hover:outline-gray-500 hover:rotate-[360deg] p-2 rounded-full transition-all duration-300">
+                        refresh
+                      </span>
+                    </button>
+                  </div>
+                  <div className="flex flex-1 text-center w-full font-semibold text-gray-500 opacity-70 justify-center">
+                    no invites found
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

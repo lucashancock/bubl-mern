@@ -6,6 +6,7 @@ function OptionsMenuInvite({ bubl_id }) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [role, setRole] = useState("");
+  const [link, setLink] = useState("");
 
   const fetchRole = async () => {
     try {
@@ -37,13 +38,16 @@ function OptionsMenuInvite({ bubl_id }) {
 
     try {
       const token = sessionStorage.getItem("token");
-      await axios.post(
+      const response = await axios.post(
         `http://${hostname}:3000/invite`,
         { email: email, bubl_id: bubl_id },
         { headers: { Authorization: token } }
       );
       setMessage("Successful invite");
+      console.log(response.data.link + "Frontend");
+      setLink(response.data.link);
     } catch (error) {
+      setLink("");
       if (error.response && error.response.data && error.response.data.error) {
         setMessage(error.response.data.error);
       } else {
@@ -76,6 +80,21 @@ function OptionsMenuInvite({ bubl_id }) {
               </button>
             </div>
             {message && <p>{message}</p>}
+          </div>
+          <div className="flex w-5/6 ml-4 rounded-full">
+            {link && (
+              <>
+                <span className="mr-2 mb-2">
+                  eventually share this link with receiver thru email:
+                </span>
+                <a
+                  className="text-blue-500 underline underline-offset-2"
+                  href={link}
+                >
+                  link
+                </a>
+              </>
+            )}
           </div>
         </>
       ) : (

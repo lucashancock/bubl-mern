@@ -62,6 +62,7 @@ function Options({ bubl_id, onClose }) {
               <div className="flex-grow">
                 <OptionsMenuMembers bubl_id={bubl_id} />
               </div>
+
               <div className="items-center justify-center">
                 <OptionsMenuLeave bubl_id={bubl_id} />
               </div>

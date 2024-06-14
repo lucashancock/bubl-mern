@@ -74,15 +74,13 @@ function UploadPhotoModal({ handleCloseUploadModal, bubl_id }) {
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-300 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"
+        }`}
     >
       <div className="fixed inset-0 bg-black opacity-50"></div>
       <div
-        className={`bg-white p-6 rounded-3xl shadow-lg md:w-9/12 lg:w-6/12 w-11/12 h-auto flex flex-col transition-transform duration-300 ${
-          isVisible ? "scale-100" : "scale-95"
-        }`}
+        className={`bg-white p-6 rounded-3xl shadow-lg md:w-9/12 lg:w-6/12 w-11/12 h-auto flex flex-col transition-transform duration-300 ${isVisible ? "scale-100" : "scale-95"
+          }`}
       >
         <h2 className="text-lg text-center bg-black text-white rounded-2xl mb-2 p-1">
           upload photo

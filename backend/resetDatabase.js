@@ -3,6 +3,8 @@ const connectDB = require("./db");
 const Picture = require("./models/picture");
 const Profile = require("./models/profile");
 const Bubl = require("./models/bubl");
+const InviteToken = require("./models/invitetoken");
+
 const mongoose = require("mongoose");
 
 async function resetDatabase() {
@@ -19,8 +21,8 @@ async function resetDatabase() {
     await Profile.deleteMany({});
     await Bubl.deleteMany({});
     await Picture.deleteMany({});
+    await InviteToken.deleteMany({}); // Insert new data
 
-    // Insert new data
     await Profile.insertMany(profilesData);
     await Bubl.insertMany(bublsData);
     const picturesWithEndDate = picturesData.map((picture) => {
@@ -32,17 +34,6 @@ async function resetDatabase() {
     });
     await Picture.insertMany(picturesWithEndDate);
 
-    // Create TTL index on the end_date field
-    // Automatically will delete bubl after end_date expires.
-    // await Bubl.collection.createIndex(
-    //   { end_date: 1 },
-    //   { expireAfterSeconds: 0 }
-    // );
-
-    // await Picture.collection.createIndex(
-    //   { end_date: 1 },
-    //   { expireAfterSeconds: 0 }
-    // );
     console.log("Database reset successfully");
   } catch (error) {
     console.error("Error resetting database:", error);

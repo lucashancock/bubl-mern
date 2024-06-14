@@ -191,8 +191,11 @@ function Gallery() {
           <>
             {photos.length === 0 ? (
               <>
-                <p>No photos!</p>
+                <div>
+                  <p className="text-center w-full"> no photos! </p>
+                </div>
               </>
+
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 p-3 md:grid-cols-3 gap-4">
@@ -237,14 +240,12 @@ function Gallery() {
 
           {selectedImage && (
             <div
-              className={`absolute inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${
-                isVisible ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"
+                }`}
             >
               <div
-                className={`w-max h-max overflow-auto p-2 bg-white rounded-2xl transition-transform duration-300 ${
-                  isVisible ? "scale-100" : "scale-75"
-                }`}
+                className={`w-max h-max overflow-auto p-2 bg-white rounded-2xl transition-transform duration-300 ${isVisible ? "scale-100" : "scale-75"
+                  }`}
               >
                 <div className="absolute left-3 top-3 h-fit flex mb-3">
                   <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">

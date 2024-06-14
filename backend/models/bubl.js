@@ -14,6 +14,7 @@ const bublSchema = new mongoose.Schema(
       required: true,
       ref: "Profile",
     },
+    requests: [{ type: String, ref: "Profile" }],
     members: {
       type: [{ type: String, ref: "Profile" }],
       default: [],

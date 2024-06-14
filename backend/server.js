@@ -13,6 +13,7 @@ const resetDatabase = require("./resetDatabase");
 const Profile = require("./models/profile"); // see file for more information about Profile
 const Bubl = require("./models/bubl"); // see file for more info
 const Picture = require("./models/picture"); // see file for more info
+const InviteToken = require("./models/invitetoken");
 const http = require("http"); // for RTC socket live gallery
 const { Server } = require("socket.io"); // for socket live gallery
 
@@ -146,7 +147,7 @@ app.put("/profile", verifyToken, async (req, res) => {
 // IN: username, password, and optional email
 app.post("/register", async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email, token, bubl_id } = req.body;
 
     if (!username || !password || !email) {
       return res
@@ -198,6 +199,21 @@ app.post("/register", async (req, res) => {
       invites: [],
       email: email,
     });
+    console.log(token);
+    console.log(bubl_id);
+    if (token) {
+      const inviteToken = await InviteToken.findOne({
+        token: token,
+      });
+      if (inviteToken) {
+        const bubl = await Bubl.findOne({ bubl_id: inviteToken.bubl_id });
+        if (bubl) {
+          bubl.members.push(user_id);
+          await bubl.save();
+        }
+        await InviteToken.deleteOne({ token: token });
+      }
+    }
     await newprof.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -412,9 +428,15 @@ app.post("/bubljoin", verifyToken, async (req, res) => {
       return res.status(400).json({ error: "Bubl is at capacity." });
     }
 
-    bubl.members.push(profile_id);
-    await bubl.save();
-    res.status(200).json("Successfully joined bubl");
+    if (bubl.privacy === "private") {
+      bubl.requests.push(profile_id);
+      await bubl.save();
+      return res.status(200).json({ message: "requested" });
+    } else {
+      bubl.members.push(profile_id);
+      await bubl.save();
+      return res.status(200).json({ message: "joined" });
+    }
   } catch (error) {
     res.status(500).json({ error: "Bubl join failed" });
   }
@@ -535,7 +557,7 @@ app.post(
       const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
       if (!allowedMimeTypes.includes(req.file.mimetype))
         return res.status(400).send("Uploaded file is not a valid photo.");
-
+      console.log(req.file);
       // Generate a unique ID for the photo
       const picture_id = "picture_" + crypto.randomUUID();
       const base64Photo = req.file.buffer.toString("base64");
@@ -699,49 +721,81 @@ app.post("/invite", verifyToken, async (req, res) => {
       return res.status(400).json({ error: "Invalid email format" });
 
     // Check if the email exists in the profiles collection
-    const user = await Profile.findOne({ email: email });
-    if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User email not found or that is you!" });
-    }
-
+    const sender = await Profile.findOne({ profile_id: profile_id });
+    const receiver = await Profile.findOne({ email: email });
     const toThisBubl = await Bubl.findOne({ bubl_id: bubl_id });
-    if (
-      toThisBubl.members.includes(user.profile_id) ||
-      toThisBubl.admins.includes(user.profile_id)
-    ) {
-      return res.status(400).json({ error: "User is already in that bubl." });
-    }
 
+    // check if the bubl is at capacity or not
     if (
       toThisBubl.members.length + toThisBubl.admins.length ===
       toThisBubl.capacity
     ) {
       return res.status(400).json({ error: "Bubl is at capacity." });
     }
+    let link = "";
+    if (!receiver) {
+      // check that invite has already been sent to this email
+      const invite = await InviteToken.findOne({ email: email });
+      if (invite)
+        return res
+          .status(400)
+          .json({ error: "This email has already been invited." });
 
-    // Check if the user has already been invited to the same bubl
-    const isInvited = user.invites.some(
-      (invite) => invite.profile_id === profile_id && invite.bubl_id === bubl_id
-    );
-    if (isInvited) {
-      return res
-        .status(400)
-        .json({ error: "User has already been invited to this bubl" });
+      // send the email for the receiver to register heer
+      const token = crypto.randomBytes(32).toString("hex");
+      link = `http://localhost:3001/register?token=${token}&bubl_id=${bubl_id}`;
+      console.log(`sending mail to ${email}`);
+
+      await new InviteToken({ token, email, bubl_id }).save();
+    } else {
+      // the receiver exists
+      if (receiver.email === sender.email) {
+        return res
+          .status(400)
+          .json({ error: "You cannot send an invite to yourself." });
+      }
+      // check they arent apart of the bubl already
+      if (
+        toThisBubl.members.includes(receiver.profile_id) ||
+        toThisBubl.admins.includes(receiver.profile_id)
+      ) {
+        return res
+          .status(400)
+          .json({ error: "receiver is already in that bubl." });
+      }
+      // Check if the receiver has already been invited to the same bubl
+      const isInvited = receiver.invites.some(
+        (invite) =>
+          invite.profile_id === profile_id && invite.bubl_id === bubl_id
+      );
+      if (isInvited) {
+        return res
+          .status(400)
+          .json({ error: "receiver has already been invited to this bubl" });
+      }
+      const invitor = await Profile.findOne({ profile_id: profile_id });
+      receiver.invites.push({
+        profile_id: profile_id,
+        invitor_username: invitor.username,
+        bubl_id: bubl_id,
+        bubl_name: bubl_id.substring(0, bubl_id.indexOf("_")),
+      });
+      link = `http://localhost:3001/login`;
+      await receiver.save(); // Save the updated profile document
     }
 
-    const invitor = await Profile.findOne({ profile_id: profile_id });
-    user.invites.push({
-      profile_id: profile_id,
-      invitor_username: invitor.username,
-      bubl_id: bubl_id,
-      bubl_name: bubl_id.substring(0, bubl_id.indexOf("_")),
+    // await sendMail(
+    //   email,
+    //   "Invitation to join a bubl was sent to your account.",
+    //   `You have been invited to join a bubl. Please login by clicking <a href="${loginLink}">here</a>.`
+    // );
+    console.log("HERE");
+    console.log(link);
+    console.log("here?");
+    return res.status(200).json({
+      message: "Invite sent successfully to email",
+      link: link,
     });
-    await user.save(); // Save the updated profile document
-    return res
-      .status(200)
-      .json({ message: "Invite sent successfully", invites: user.invites });
   } catch (error) {
     res.status(500).json({ error: "Failed to send invite" });
   }
@@ -752,6 +806,81 @@ app.get("/usersinvites", verifyToken, async (req, res) => {
   const user = await Profile.findOne({ profile_id: profile_id });
   if (!user) return res.status(404).json("User not found");
   return res.status(200).json(user.invites || []);
+});
+
+app.post("/bublrequests", verifyToken, async (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id } = req.body;
+  const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+  if (!bubl) {
+    return res.status(404).json({ error: "Could not find bubl." });
+  }
+
+  const returnArr = await Promise.all(
+    bubl.requests.map(async (profile_id) => {
+      const profile = await Profile.findOne({ profile_id: profile_id });
+      return profile.email;
+    })
+  );
+
+  return res.status(200).json(returnArr || []);
+});
+
+app.post("/acceptrequest", verifyToken, async (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id, email } = req.body;
+
+  const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+  const requestor = await Profile.findOne({ email: email });
+  const acceptor = await Profile.findOne({ profile_id: profile_id });
+
+  if (!bubl.admins.includes(acceptor.profile_id)) {
+    return res
+      .status(400)
+      .json({ error: "You are not an admin, you cannot accept this request." });
+  }
+  if (
+    bubl.members.includes(requestor.profile_id) ||
+    bubl.admins.includes(requestor.profile_id)
+  ) {
+    return res.status(400).json({
+      error: "The user is already in the bubl. This should not happen.",
+    });
+  }
+  if (bubl.members.length + bubl.admins.length === bubl.capacity) {
+    return res.status(400).json({
+      error: "This bubl is at capacity. You cannot admit any more users.",
+    });
+  }
+  bubl.members.push(requestor.profile_id);
+  const index = bubl.requests.findIndex(
+    (profile_id) => profile_id === requestor.profile_id
+  );
+  console.log(index);
+  bubl.requests.splice(index, 1);
+  await bubl.save();
+  return res.status(200).json({ message: "Successfully accepted request" });
+});
+
+app.post("/rejectrequest", verifyToken, async (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id, email } = req.body;
+
+  const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+  const requestor = await Profile.findOne({ email: email });
+  const acceptor = await Profile.findOne({ profile_id: profile_id });
+
+  if (!bubl.admins.includes(acceptor.profile_id)) {
+    return res
+      .status(400)
+      .json({ error: "You are not an admin you cannot reject this request." });
+  }
+  const index = bubl.requests.findIndex(
+    (profile_id) => profile_id === requestor.profile_id
+  );
+  bubl.requests.splice(index, 1);
+  await bubl.save();
+  return res.status(200).json({ message: "Successfully rejected request." });
 });
 
 app.post("/acceptinvite", verifyToken, async (req, res) => {

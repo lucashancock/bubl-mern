@@ -28,13 +28,17 @@ function JoinBubl({ onSuccess }) {
     e.preventDefault();
     try {
       const token = sessionStorage.getItem("token");
-      await axios.post(
+      const response = await axios.post(
         `http://${hostname}:3000/bubljoin`, // response not used as of now
         { bubl_id: bubl_id },
         { headers: { Authorization: token } }
       );
       // If join is successful, invoke onSuccess callback
-      onSuccess();
+      if (response.data.message === "requested") {
+        setError("Requested to join private bubl.");
+      } else {
+        onSuccess();
+      }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         setError(error.response.data.error);

@@ -15,6 +15,7 @@ function BublsTest() {
   const [error, setError] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentBublId, setCurrentBublId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const openEditModal = (bublId) => {
     setCurrentBublId(bublId);
@@ -28,6 +29,7 @@ function BublsTest() {
 
   const handleGetBubls = async () => {
     try {
+      setLoading(true);
       const token = sessionStorage.getItem("token");
       const response = await axios.post(
         `http://${hostname}:3000/mybubls`,
@@ -36,8 +38,10 @@ function BublsTest() {
       );
       setBubls(response.data.bubls_profile);
       setError("");
+      setLoading(false);
     } catch (error) {
       setError("Error getting your bubls.");
+      setLoading(false);
     }
   };
 
@@ -48,6 +52,7 @@ function BublsTest() {
   const deleteBubl = async (bubl_id) => {
     const token = sessionStorage.getItem("token");
     try {
+      setLoading(true);
       await axios.post(
         `http://${hostname}:3000/bubldelete`,
         { bubl_id: bubl_id },
@@ -59,7 +64,9 @@ function BublsTest() {
       );
       console.log("Bubl delete successful.");
       handleGetBubls();
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Bubl delete failed.");
     }
   };
@@ -87,7 +94,7 @@ function BublsTest() {
         </button>
       </div>
       <>
-        {bubls.length === 0 ? (
+        {loading ? (
           <div className="flex justify-center items-start mt-10">
             <div className="animate-pulse rounded-full h-12 w-12 bg-gray-300"></div>
           </div>

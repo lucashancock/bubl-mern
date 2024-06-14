@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { hostname } from "./App";
+import OptionsMenuRequests from "./OptionsMenuRequests";
 
 function OptionsMenuMembers({ bubl_id }) {
   const [members, setMembers] = useState([]);
@@ -45,6 +46,9 @@ function OptionsMenuMembers({ bubl_id }) {
             ))}
           </ul>
         </div>
+      </div>
+      <div className="items-center justify-center">
+        <OptionsMenuRequests fetchUsers={fetchUsers} bubl_id={bubl_id} />
       </div>
     </>
   );
