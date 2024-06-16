@@ -47,9 +47,6 @@ function OptionsMenuMembers({ bubl_id }) {
           </ul>
         </div>
       </div>
-      <div className="items-center justify-center">
-        <OptionsMenuRequests fetchUsers={fetchUsers} bubl_id={bubl_id} />
-      </div>
     </>
   );
 }

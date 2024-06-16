@@ -49,28 +49,6 @@ function BublsTest() {
     handleGetBubls(); // initial fetch
   }, []);
 
-  const deleteBubl = async (bubl_id) => {
-    const token = sessionStorage.getItem("token");
-    try {
-      setLoading(true);
-      await axios.post(
-        `http://${hostname}:3000/bubldelete`,
-        { bubl_id: bubl_id },
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      console.log("Bubl delete successful.");
-      handleGetBubls();
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.error("Bubl delete failed.");
-    }
-  };
-
   return (
     <>
       <div className="relative flex justify-center">
@@ -158,22 +136,11 @@ function BublsTest() {
                             className="relative flex items-center px-2 py-2 ml-1 bg-gray-500 text-white hover:bg-gray-700 rounded-full transition-all duration-300 group"
                             onClick={() => openEditModal(item.bubl_id)}
                           >
-                            <i className="fa-solid fa-edit mx-1"></i>
+                            <i className="fa-solid fa-gear mx-1"></i>
                             <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">
                               edit
                             </span>
                           </button>
-                          <div className="flex">
-                            <button
-                              className="relative flex items-center px-2 py-2 ml-1 bg-gray-500 text-white hover:bg-red-600 rounded-full transition-all duration-300 group"
-                              onClick={() => deleteBubl(item.bubl_id)}
-                            >
-                              <i className="fa-solid fa-trash mx-1"></i>
-                              <span className="opacity-0 w-0 transition-all duration-300 group-hover:w-20 group-hover:opacity-100">
-                                delete
-                              </span>
-                            </button>
-                          </div>
                         </div>
                       )}
                     </div>

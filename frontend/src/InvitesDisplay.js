@@ -16,6 +16,7 @@ function InvitesDisplay({ handleGetBubls }) {
         },
       });
       setInvites(response.data);
+      console.log(response.data);
     } catch (error) {
       setMessage(
         error.response?.data.message ||
@@ -48,6 +49,8 @@ function InvitesDisplay({ handleGetBubls }) {
       fetchInvites();
       handleGetBubls();
     } catch (error) {
+      fetchInvites();
+      handleGetBubls();
       console.error(`Error ${action}ing invite.`);
     }
   };
@@ -89,7 +92,7 @@ function InvitesDisplay({ handleGetBubls }) {
                   >
                     <div className="flex items-center h-min flex-grow mr-1 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300">
                       <div className="flex-grow font-semibold">
-                        <span>{invite.invitor_username}</span>
+                        <span>{invite.sender_username}</span>
                         <span className="text-gray-400 font-normal mx-2">
                           invited you to
                         </span>

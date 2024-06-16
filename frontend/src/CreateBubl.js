@@ -172,7 +172,7 @@ function CreateBubl({ onSuccess }) {
               className="w-4 h-4 "
               checked={selectedSize === "medium"}
               onChange={() => setSelectedSize("medium")}
-              //disabled // TO-DO undisable if they are correct tier
+              disabled // TO-DO undisable if they are correct tier
             />
             <div className="ms-2 text-sm">
               <label

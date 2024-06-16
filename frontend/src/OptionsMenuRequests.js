@@ -59,24 +59,41 @@ function OptionsMenuRequests({ fetchUsers, bubl_id }) {
 
   return (
     <>
-      <span className="m-2 font-semibold">requests to join this bubl:</span>
-      <div className="m-2">
-        {emails.map((email, index) => (
-          <div key={index} className="flex border rounded-2xl my-2">
-            <div className="flex ml-2 py-1 px-2 flex-grow">{email}</div>
-            <button onClick={() => acceptRequest(email)}>
-              <div className="flex flex-initial mx-2 items-center justify-center">
-                accept
-              </div>
-            </button>
-            <button onClick={() => rejectRequest(email)}>
-              <div className="flex flex-initial mx-4 items-center justify-center">
-                reject
-              </div>
-            </button>
+      {emails.length === 0 ? (
+        <>
+          <div className="m-2 border rounded-2xl text-center p-3">
+            no requests found!
           </div>
-        ))}
-      </div>
+        </>
+      ) : (
+        <>
+          <div className="m-3 border rounded-2xl p-3">
+            {emails.map((email, index) => (
+              <div key={index} className="flex w-full h-full rounded-2xl my-2">
+                <div className="flex py-1 px-2 border rounded-2xl flex-grow">
+                  {email}
+                </div>
+                <button
+                  className="flex-initial w-40 h-full"
+                  onClick={() => acceptRequest(email)}
+                >
+                  <div className="flex-1 mx-2 bg-black text-white  py-1 border rounded-2xl items-center justify-center">
+                    accept
+                  </div>
+                </button>
+                <button
+                  className="flex-initial w-36 h-full"
+                  onClick={() => rejectRequest(email)}
+                >
+                  <div className=" flex-1  bg-white text-black py-1 border rounded-2xl items-center justify-center">
+                    reject
+                  </div>
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 }

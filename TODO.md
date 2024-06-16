@@ -24,3 +24,9 @@
     - pagination for when there is lots of photos.
         - optimization of app. look into webRTC again for socket based connection instead of pinging the backend API every second for update
         - OR implement a refresh button/functionality.
+
+
+- Admin page in the bubls menu where the edit and delete are...
+    - multiselect dropdown menu for kicking.
+- Deletion and cascading of bubls, pictures, and invitetokens automatically.
+    - Mongoose is buggy with the expire stuff...

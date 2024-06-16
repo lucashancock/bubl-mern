@@ -34,7 +34,7 @@ function CreateJoinModal({ closeModal, handleGetBubls }) {
     >
       <div className="fixed inset-0 bg-black opacity-50"></div>
       <div
-        className={`bg-white p-6 rounded-3xl shadow-lg z-10 md:w-9/12 lg:w-6/12 w-11/12 h-4/6 flex flex-col transition-transform duration-300 ${
+        className={`bg-white p-6 rounded-3xl shadow-lg z-10 w-full md:w-4/6 h-5/6 flex flex-col transition-transform duration-300 ${
           isVisible ? "scale-100" : "scale-95"
         }`}
       >
