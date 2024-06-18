@@ -19,7 +19,7 @@ const CountdownTimer = ({ endDate }) => {
 
   return (
     <div className="w-full text-center">
-      {`${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes}, ${timeLeft.seconds}`}
+      {`${timeLeft.days} days, ${timeLeft.hours} hours`}
     </div>
   );
 };

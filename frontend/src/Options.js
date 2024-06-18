@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import OptionsMenuInvite from "./OptionsMenuInvite";
 import OptionsMenuMembers from "./OptionsMenuMembers";
 import OptionsMenuLeave from "./OptionsMenuLeave";
-import OptionsMenuEditBubl from "./OptionsMenuEditBubl";
+import OptionsMenuInfo from "./OptionsMenuInfo";
 
 function Options({ bubl_id, onClose }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -33,7 +32,7 @@ function Options({ bubl_id, onClose }) {
         >
           <div className="p-4 flex items-center justify-between">
             <span className="flex flex-grow bg-black text-white justify-center py-1 rounded-3xl text-lg ml-1">
-              options menu
+              more
             </span>
             <button
               onClick={handleClose}
@@ -53,11 +52,8 @@ function Options({ bubl_id, onClose }) {
           >
             {/* Content of the slide out window here */}
             <div className="flex flex-col justify-between h-full">
-              <div className="flex-initial">
-                <OptionsMenuInvite bubl_id={bubl_id} />
-              </div>
               <div className="flex-inital">
-                <OptionsMenuEditBubl bubl_id={bubl_id} />
+                <OptionsMenuInfo bubl_id={bubl_id} />
               </div>
               <div className="flex-grow">
                 <OptionsMenuMembers bubl_id={bubl_id} />

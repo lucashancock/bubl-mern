@@ -5,11 +5,11 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Banner from "./Components/Banner";
 import { hostname } from "./App";
+import toast, { Toaster } from "react-hot-toast";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,12 +23,11 @@ function Login({ onLogin }) {
       sessionStorage.setItem("token", token);
 
       onLogin(token, username);
-      setError("");
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
-        setError(error.response.data.error);
+        toast.error(error.response.data.error);
       } else {
-        setError("Registration failed. Please try again.");
+        toast.error("Login failed. Please try again.");
       }
       sessionStorage.removeItem("token");
     }
@@ -36,6 +35,25 @@ function Login({ onLogin }) {
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       <Banner />
       <div className="container mt-3 p-0 rounded-lg">
         <span
@@ -60,8 +78,8 @@ function Login({ onLogin }) {
         </span>
       </div>
 
-      <div className="h-full mt-24 flex justify-center items-center">
-        <div className="container w-1/2 min-w-max border border-gray-300 rounded-md p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
+      <div className="h-full mt-24 flex justify-center items-center ">
+        <div className="container w-1/2 min-w-max border border-gray-300 rounded-2xl p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
           <form className="space-y-6">
             <div className="mb-10">
               <h3 className="text-3xl font-extrabold">log in</h3>
@@ -73,7 +91,7 @@ function Login({ onLogin }) {
                   name="username"
                   type="text"
                   required
-                  className="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]"
+                  className="w-full text-sm border border-gray-300 px-4 py-3 rounded-2xl outline-[#333]"
                   placeholder="enter username or email"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -84,7 +102,7 @@ function Login({ onLogin }) {
               <label className="text-sm mb-2 block">password</label>
               <div className="relative flex items-center">
                 <input
-                  className="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]"
+                  className="w-full text-sm border border-gray-300 px-4 py-3 rounded-2xl outline-[#333]"
                   type="password"
                   placeholder="enter password"
                   value={password}
@@ -95,7 +113,7 @@ function Login({ onLogin }) {
             <div className="!mt-10">
               <button
                 type="button"
-                className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded text-white bg-[#333] hover:bg-black focus:outline-none"
+                className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded-2xl  text-white bg-[#333] hover:bg-black focus:outline-none"
                 onClick={handleLogin}
               >
                 log in
@@ -113,9 +131,7 @@ function Login({ onLogin }) {
           </form>
         </div>
       </div>
-      <div className="mt-5 text-red-500 text-center">
-        {error && <p>{error}</p>}
-      </div>
+      <div className="mt-5 text-red-500 text-center"></div>
     </>
   );
 }

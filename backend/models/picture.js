@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Bubl = require("./bubl");
 
 const pictureSchema = new mongoose.Schema(
   {
@@ -8,7 +9,7 @@ const pictureSchema = new mongoose.Schema(
     },
     photoname: { type: String, required: true },
     description: { type: String, required: false, default: "" },
-    tags: [{ type: String, required: false }],
+    tags: [{ type: String, required: false }], // added here but not implemented anywhere else.
     creator_id: {
       type: String,
       required: true,
@@ -18,14 +19,14 @@ const pictureSchema = new mongoose.Schema(
     bubl_id: {
       type: String,
       required: true,
-      ref: "Bubl",
     },
     data: {
       bytes: { type: String },
       mimeType: { type: String },
       filename: { type: String },
     },
-    end_date: { type: Date },
+    start_date: { type: Date, required: true, default: Date.now },
+    end_date: { type: Date, required: false, expires: 0 },
   },
   { collection: "pictures" }
 );
@@ -33,12 +34,12 @@ const pictureSchema = new mongoose.Schema(
 pictureSchema.pre("save", async function (next) {
   try {
     if (this.isNew) {
-      const bubl = await this.model("Bubl").findOne({ bubl_id: this.bubl_id });
-      console.log(bubl.name);
-      if (!bubl) {
-        throw new Error("Associated Bubl not found");
+      const bubl = await Bubl.findOne({ bubl_id: this.bubl_id });
+      if (bubl) {
+        this.end_date = bubl.end_date;
+      } else {
+        throw new Error("Bubl not found");
       }
-      this.end_date = bubl.end_date;
     }
     next();
   } catch (error) {
