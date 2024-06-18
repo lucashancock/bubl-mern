@@ -4,13 +4,12 @@ import { Link } from "react-router-dom";
 import Banner from "./Components/Banner";
 import { hostname } from "./App";
 import { useLocation } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -26,24 +25,41 @@ function Register() {
         token,
         bubl_id,
       });
-      setMessage(response.data.message + ". Redirecting to Login page.");
-      setError("");
+      toast.success(response.data.message + ". Redirecting to Login page!");
 
       setTimeout(() => {
         window.location.href = "/login";
       }, 1500);
     } catch (error) {
-      setMessage("");
       if (error.response && error.response.data && error.response.data.error) {
-        setError(error.response.data.error);
+        toast.error(error.response.data.error);
       } else {
-        setError("Registration failed. Please try again.");
+        toast.error("Registration failed. Please try again.");
       }
     }
   };
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       <Banner />
       <div className="container mt-3 p-0 rounded-lg">
         <span
@@ -133,10 +149,7 @@ function Register() {
           </form>
         </div>
       </div>
-      <div className="mt-5 text-red-500 text-center">
-        {error && <p>{error}</p>}
-        {message && <p>{message}</p>}
-      </div>
+      <div className="mt-5 text-red-500 text-center"></div>
     </>
   );
 }

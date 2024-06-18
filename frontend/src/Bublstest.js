@@ -7,12 +7,12 @@ import axios from "axios";
 import { format } from "date-fns";
 import InvitesDisplay from "./InvitesDisplay";
 import EditBublModal from "./EditBublModal";
+import toast, { Toaster } from "react-hot-toast";
 
 function BublsTest() {
   const [showModal, setShowModal] = useState(false);
   const [dateSwitch, setDateSwitch] = useState(true);
   const [bubls, setBubls] = useState([]);
-  const [error, setError] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentBublId, setCurrentBublId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,10 +37,9 @@ function BublsTest() {
         { headers: { Authorization: token } }
       );
       setBubls(response.data.bubls_profile);
-      setError("");
       setLoading(false);
     } catch (error) {
-      setError("Error getting your bubls.");
+      toast.error("Error getting your bubls.");
       setLoading(false);
     }
   };
@@ -51,6 +50,25 @@ function BublsTest() {
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       <div className="relative flex justify-center">
         <button
           className="relative flex items-center px-2 py-2 bg-black text-white rounded-full transition-all duration-300 group mr-2"

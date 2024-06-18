@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import { hostname } from "./App";
+import toast, { Toaster } from "react-hot-toast";
 
 function OptionsMenuInfo({ bubl_id }) {
   const [bublInfo, setBublInfo] = useState(null);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Function to fetch Bubl info
@@ -24,7 +24,7 @@ function OptionsMenuInfo({ bubl_id }) {
         setBublInfo(response.data);
       } catch (error) {
         // Handle error
-        setError("Error fetching Bubl info. Please try again later.");
+        toast.error("Error fetching Bubl info. Please try again later.");
       }
     };
 
@@ -34,7 +34,25 @@ function OptionsMenuInfo({ bubl_id }) {
 
   return (
     <div>
-      {error && <p>{error}</p>} {/* Display error message if an error occurs */}
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       {bublInfo && (
         <>
           <span className="m-2 text-regular font-semibold">

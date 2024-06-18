@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Banner2 from "./Components/Banner2";
 import { hostname } from "./App";
+import toast, { Toaster } from "react-hot-toast";
 
 const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null);
@@ -13,7 +14,6 @@ const Profile = ({ onLogout }) => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
-  const [updateMessage, setUpdateMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,15 +49,13 @@ const Profile = ({ onLogout }) => {
       );
 
       setProfile(response.data.profile);
-      setUpdateMessage("Profile updated successfully");
+      toast.success("Profile updated successfully");
 
       // Update the token in sessionStorage
       sessionStorage.setItem("token", response.data.token);
     } catch (error) {
       console.error("Error updating profile:", error);
-      setUpdateMessage(
-        "Profile update failed. Try a different username/email."
-      );
+      toast.error("Profile update failed. Try a different username/email.");
     }
   };
 
@@ -69,11 +67,11 @@ const Profile = ({ onLogout }) => {
         { password: newPassword },
         { headers: { Authorization: token } }
       );
-      setUpdateMessage("Profile delete success. Redirecting to home.");
+      toast.success("Profile delete success. Redirecting to home.");
       onLogout();
     } catch (error) {
       console.error("Error deleting profile:", error);
-      setUpdateMessage("Profile delete failed. Please try again.");
+      toast.error("Profile delete failed. Please try again.");
     }
   };
 
@@ -97,6 +95,26 @@ const Profile = ({ onLogout }) => {
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          id: "toast",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       <Banner2 />
       <div className="flex items-center justify-between bg-white py-5 px-4">
         <div className="border-t border-gray-600 flex-grow"></div>
@@ -167,8 +185,6 @@ const Profile = ({ onLogout }) => {
             delete profile
           </button>
         </div>
-
-        <p className="text-red-500">{updateMessage}</p>
       </div>
     </>
   );

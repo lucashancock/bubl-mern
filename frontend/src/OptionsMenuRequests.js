@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { hostname } from "./App";
+import toast, { Toaster } from "react-hot-toast";
 
-function OptionsMenuRequests({ fetchUsers, bubl_id }) {
+function OptionsMenuRequests({ handleGetBubls, bubl_id }) {
   const [emails, setProfileIds] = useState([]);
 
   const fetchRequests = async () => {
@@ -16,23 +17,23 @@ function OptionsMenuRequests({ fetchUsers, bubl_id }) {
       );
       setProfileIds(response.data);
     } catch (error) {
-      console.log("error happened");
+      toast.error("Error occurred fetching requests. Try again later.");
     }
   };
 
   const acceptRequest = async (email) => {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await axios.post(
+      await axios.post(
         `http://${hostname}:3000/acceptrequest`,
         { bubl_id, email },
         { headers: { Authorization: token } }
       );
-      console.log("accept successful");
       fetchRequests();
-      fetchUsers();
+      handleGetBubls();
+      toast.success("Successfuly accepted request.");
     } catch (error) {
-      console.log("error happened");
+      toast.error("Error occurred accepting request.");
     }
   };
 
@@ -44,11 +45,12 @@ function OptionsMenuRequests({ fetchUsers, bubl_id }) {
         { bubl_id, email },
         { headers: { Authorization: token } }
       );
-      console.log("reject successful");
       fetchRequests();
-      fetchUsers();
+      handleGetBubls();
+      toast.success("Successfully rejected request.");
     } catch (error) {
-      console.log("error happened");
+      console.log(error);
+      toast.error("Error occurred rejecting request.");
     }
   };
 
@@ -59,6 +61,25 @@ function OptionsMenuRequests({ fetchUsers, bubl_id }) {
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       {emails.length === 0 ? (
         <>
           <div className="m-2 border rounded-2xl text-center p-3">

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { hostname } from "./App";
+import toast, { Toaster } from "react-hot-toast";
 
 function InvitesDisplay({ handleGetBubls }) {
   const [invites, setInvites] = useState([]);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   const fetchInvites = async () => {
@@ -16,13 +16,10 @@ function InvitesDisplay({ handleGetBubls }) {
         },
       });
       setInvites(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
-      setMessage(
-        error.response?.data.message ||
-          "An error occurred while fetching invites"
-      );
-      console.error("Error:", error);
+      // console.error("Error:", error);
+      toast.error("Error getting invites. Try refreshing invites.");
     } finally {
       setLoading(false);
     }
@@ -45,18 +42,39 @@ function InvitesDisplay({ handleGetBubls }) {
           },
         }
       );
-      console.log(response.data.message);
+      // console.log(response.data.message);
       fetchInvites();
       handleGetBubls();
+      toast.success(response.data.message);
     } catch (error) {
       fetchInvites();
       handleGetBubls();
-      console.error(`Error ${action}ing invite.`);
+      // console.error(`Error ${action}ing invite.`);
+      toast.error(`Error ${action}ing invite.`);
     }
   };
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       {loading ? (
         <div className="mt-24">
           <div className="flex items-center justify-between bg-white py-5 px-4">

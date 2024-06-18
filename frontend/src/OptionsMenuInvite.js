@@ -1,41 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { hostname } from "./App";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 function OptionsMenuInvite({ bubl_id }) {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [role, setRole] = useState("");
   const [link, setLink] = useState("");
 
-  const fetchRole = async () => {
-    try {
-      const token = sessionStorage.getItem("token");
-      const response = await axios.post(
-        `http://${hostname}:3000/getrole`,
-        { bubl_id: bubl_id },
-        { headers: { Authorization: token } }
-      );
-      setRole(response.data.role);
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        setMessage(error.response.data.error);
-      } else {
-        setMessage("Error getting your role. Try again later.");
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchRole();
-  }, []);
-
   const handleInvite = async () => {
-    if (!email || !bubl_id) {
-      setMessage("All fields are required");
-      return;
-    }
-
     try {
       const token = sessionStorage.getItem("token");
       const response = await axios.post(
@@ -43,21 +15,39 @@ function OptionsMenuInvite({ bubl_id }) {
         { email: email, bubl_id: bubl_id },
         { headers: { Authorization: token } }
       );
-      setMessage("Successful invite");
-      console.log(response.data.link + "Frontend");
+      toast.success("Successful invite");
       setLink(response.data.link);
     } catch (error) {
       setLink("");
-      if (error.response && error.response.data && error.response.data.error) {
-        setMessage(error.response.data.error);
-      } else {
-        setMessage("Registration failed. Please try again.");
-      }
+      const errorMessage =
+        error.response?.data?.error || "Invitation failed. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
   return (
     <>
+      <div>
+        <Toaster
+          toastOptions={{
+            className: "",
+            success: {
+              style: {
+                border: "1px solid #000000",
+                padding: "16px",
+                color: "#000000",
+              },
+            },
+            error: {
+              style: {
+                border: "1px solid #000000",
+                padding: "16px",
+                color: "#000000",
+              },
+            },
+          }}
+        />
+      </div>
       <div className="m-2 border rounded-2xl p-3">
         <div className="flex flex-col items-center ">
           <div className="w-full drop-shadow-none">
@@ -72,12 +62,11 @@ function OptionsMenuInvite({ bubl_id }) {
           <div className="w-full">
             <button
               className="m-2 w-full px-3 py-2 bg-black text-white rounded-2xl"
-              onClick={handleInvite}
+              onClick={() => handleInvite()}
             >
               invite
             </button>
           </div>
-          {message && <p>{message}</p>}
         </div>
         <div className="flex w-5/6 ml-4 rounded-full">
           {link && (

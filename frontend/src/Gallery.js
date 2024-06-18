@@ -6,6 +6,7 @@ import UploadPhotoModal from "./UploadPhotoModal";
 import Options from "./Options";
 import { hostname } from "./App";
 import io from "socket.io-client";
+import toast, { Toaster } from "react-hot-toast";
 
 const socket = io("http://localhost:3000");
 
@@ -26,7 +27,7 @@ function Gallery() {
 
     // Listen for photo updates in the specific room
     socket.on("photoUpdate", () => {
-      console.log("new photo update came in, fetching...");
+      // console.log("new photo update came in, fetching...");
       fetchPhotos();
       fetchLikedPhotos();
     });
@@ -46,11 +47,11 @@ function Gallery() {
         { bubl_id: bubl_id },
         { headers: { Authorization: token } }
       );
-      setPhotos(response.data.returnArr); // Add the "upload card" only once here
+      setPhotos(response.data.returnArr);
       if (!displayName) setDisplayName(response.data.displayName);
       setError("");
     } catch (error) {
-      setError("Error");
+      toast.error("Error getting photos. Try refreshing the page.");
     }
   };
 
@@ -77,10 +78,12 @@ function Gallery() {
         }
       );
       handleCloseImage();
+      toast.success("Photo delete success!");
     } catch (error) {
       console.error(
         "Error deleting picture. You may not be the uploader or an admin."
       );
+      toast.error("Error deleting photo. Try again.");
     }
   };
 
@@ -100,16 +103,21 @@ function Gallery() {
   };
 
   const handleDownload = (photo) => {
-    const byteCharacters = atob(photo.data.bytes);
-    const byteNumbers = new Uint8Array(
-      Array.from(byteCharacters, (char) => char.charCodeAt(0))
-    );
-    const blob = new Blob([byteNumbers], { type: photo.data.mimeType });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", photo.data.filename);
-    link.click();
-    URL.revokeObjectURL(link.href);
+    try {
+      const byteCharacters = atob(photo.data.bytes);
+      const byteNumbers = new Uint8Array(
+        Array.from(byteCharacters, (char) => char.charCodeAt(0))
+      );
+      const blob = new Blob([byteNumbers], { type: photo.data.mimeType });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", photo.data.filename);
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast.success("Successful download. Check your downloads folder.");
+    } catch (error) {
+      toast.error("Error downloading file. Try again.");
+    }
   };
 
   const handleLike = async (photoId) => {
@@ -122,8 +130,9 @@ function Gallery() {
       );
       // Add the photoId to likedPhotos state
       setLikedPhotos((prevLikedPhotos) => [...prevLikedPhotos, photoId]);
+      toast.success("Successfully liked photo!");
     } catch (error) {
-      console.error("Error liking photo:", error);
+      toast.error("Error liking photo. Try again.");
     }
   };
 
@@ -139,13 +148,33 @@ function Gallery() {
       setLikedPhotos((prevLikedPhotos) =>
         prevLikedPhotos.filter((id) => id !== photoId)
       );
+      toast.success("Successful unlike!");
     } catch (error) {
-      console.error("Error unliking photo:", error);
+      toast.error("Failed to unlike. Try again.");
     }
   };
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       {error !== "" ? (
         <p>404 Not found.</p>
       ) : (
@@ -248,7 +277,7 @@ function Gallery() {
                   isVisible ? "scale-100" : "scale-75"
                 }`}
               >
-                <div className="absolute left-3 top-3 h-fit flex mb-3">
+                <div className="absolute left-2 top-2 h-fit flex mb-3 bg-white p-2 rounded-br-2xl">
                   <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
                     {likedPhotos.includes(selectedImage.picture_id) ? (
                       <button

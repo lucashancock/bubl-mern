@@ -1,28 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { hostname } from "./App";
+import toast, { Toaster } from "react-hot-toast";
+
 function JoinBubl({ onSuccess }) {
   const [bubl_id, setBublId] = useState("");
-  const [error, setError] = useState("");
-  const [showMessage, setShowMessage] = useState(false);
-
-  useEffect(() => {
-    let timer;
-
-    if (error) {
-      // Show the error message
-      setShowMessage(true);
-
-      // Set a timer to hide the message after 5 seconds
-      timer = setTimeout(() => {
-        setShowMessage(false);
-        setError("");
-      }, 5000);
-    }
-
-    // Clear the timer when the component unmounts or when the message disappears
-    return () => clearTimeout(timer);
-  }, [error]);
 
   const handleJoinBubl = async (e) => {
     e.preventDefault();
@@ -35,48 +17,68 @@ function JoinBubl({ onSuccess }) {
       );
       // If join is successful, invoke onSuccess callback
       if (response.data.message === "requested") {
-        setError("Requested to join private bubl.");
+        toast.success("Requested to join private bubl.");
       } else {
+        toast.success("Successfuly joined bubl!");
         onSuccess();
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
-        setError(error.response.data.error);
+        toast.error(error.response.data.error);
       } else {
-        setError("Registration failed. Please try again.");
+        toast.error("Error joining bubl. Please try again.");
       }
     }
   };
 
   return (
-    <form onSubmit={handleJoinBubl} className="h-full flex flex-col">
-      <div className="flex flex-col m-3 border bg-white p-4 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
-        <div className="mb-4">
-          <label htmlFor="bublId" className="block mb-2">
-            bubl id:
-          </label>
-          <input
-            id="bublId"
-            className="w-full p-2 px-3 border rounded-2xl"
-            type="text"
-            placeholder="join bubl id"
-            value={bubl_id}
-            onChange={(e) => setBublId(e.target.value)}
-          />
+    <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          id: "toast",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
+      <form onSubmit={handleJoinBubl} className="h-full flex flex-col">
+        <div className="flex flex-col m-3 border bg-white p-4 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
+          <div className="mb-4">
+            <label htmlFor="bublId" className="block mb-2">
+              bubl id:
+            </label>
+            <input
+              id="bublId"
+              className="w-full p-2 px-3 border rounded-2xl"
+              type="text"
+              placeholder="join bubl id"
+              value={bubl_id}
+              onChange={(e) => setBublId(e.target.value)}
+            />
+          </div>
+          <div className="mt-auto">
+            <button
+              type="submit"
+              className="bg-black text-white py-2 px-4 w-full rounded-xl hover:bg-gray-800 transition duration-300"
+            >
+              join bubl
+            </button>
+          </div>
         </div>
-        <div className="mt-auto">
-          <button
-            type="submit"
-            className="bg-black text-white py-2 px-4 w-full rounded-xl hover:bg-gray-800 transition duration-300"
-          >
-            join bubl
-          </button>
-        </div>
-        {showMessage && (
-          <p className="text-center text-red-400 mt-3">{error}</p>
-        )}
-      </div>
-    </form>
+      </form>
+    </>
   );
 }
 

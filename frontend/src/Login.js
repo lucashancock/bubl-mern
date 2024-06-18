@@ -5,11 +5,11 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Banner from "./Components/Banner";
 import { hostname } from "./App";
+import toast, { Toaster } from "react-hot-toast";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,12 +23,11 @@ function Login({ onLogin }) {
       sessionStorage.setItem("token", token);
 
       onLogin(token, username);
-      setError("");
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
-        setError(error.response.data.error);
+        toast.error(error.response.data.error);
       } else {
-        setError("Registration failed. Please try again.");
+        toast.error("Login failed. Please try again.");
       }
       sessionStorage.removeItem("token");
     }
@@ -36,6 +35,25 @@ function Login({ onLogin }) {
 
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "",
+          success: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+          error: {
+            style: {
+              border: "1px solid #000000",
+              padding: "16px",
+              color: "#000000",
+            },
+          },
+        }}
+      />
       <Banner />
       <div className="container mt-3 p-0 rounded-lg">
         <span
@@ -113,9 +131,7 @@ function Login({ onLogin }) {
           </form>
         </div>
       </div>
-      <div className="mt-5 text-red-500 text-center">
-        {error && <p>{error}</p>}
-      </div>
+      <div className="mt-5 text-red-500 text-center"></div>
     </>
   );
 }
