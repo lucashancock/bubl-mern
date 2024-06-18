@@ -4,6 +4,7 @@ import { hostname } from "./App";
 import OptionsMenuInvite from "./OptionsMenuInvite";
 import OptionsMenuRequests from "./OptionsMenuRequests";
 import toast, { Toaster } from "react-hot-toast";
+import CopyButton from "./Components/CopyButton";
 
 function EditBublModal({ closeModal, handleGetBubls, bublId }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -109,6 +110,20 @@ function EditBublModal({ closeModal, handleGetBubls, bublId }) {
           }`}
         >
           <div className="flex-grow overflow-y-auto">
+            <div>
+              <h2 className="text-xl text-center font-bold mb-2 ">
+                public bubl_id for {bublId.split("_")[0]}
+              </h2>
+              <h3 className="text-sm text-center font-light opacity-70">
+                share this bubl_id key to allow users to join/request to join
+                your bubl!
+              </h3>
+            </div>
+            <div className="border rounded-2xl p-2 m-3 text-center font-medium">
+              <span className="mr-2">{bublId}</span>
+              <CopyButton textToCopy={bublId} />
+            </div>
+            <br />
             <div>
               <h2 className="text-xl text-center font-bold mb-2">
                 edit {bublId.split("_")[0]}

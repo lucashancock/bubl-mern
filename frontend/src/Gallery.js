@@ -159,8 +159,10 @@ function Gallery() {
   };
 
   const filteredAndSortedPhotos = () => {
-    let filteredPhotos = photos.filter((photo) =>
-      photo.photoname.toLowerCase().includes(searchTerm.toLowerCase())
+    let filteredPhotos = photos.filter(
+      (photo) =>
+        photo.photoname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        photo.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     switch (sortOrder) {
@@ -257,7 +259,7 @@ function Gallery() {
               onChange={handleSearch}
             />
             <select
-              className="border block border-gray-400 p-2 pl-4 w-min focus:border-blue-500 focus:ring-blue-500 rounded-2xl mx-6 "
+              className="border block border-gray-400 p-2 pl-4 w-min focus:border-blue-500 focus:ring-blue-500 rounded-2xl mx-3 "
               value={sortOrder}
               onChange={handleSort}
             >
@@ -315,7 +317,7 @@ function Gallery() {
 
           {selectedImage && (
             <div
-              className={`absolute inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${
+              className={`fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${
                 isVisible ? "opacity-100" : "opacity-0"
               }`}
             >

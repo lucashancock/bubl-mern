@@ -1,6 +1,5 @@
 - Permissions and tiers 
 
-- Edit icon in bubls page --> edit modal: edit bubl name, upgrade capacity, edit description, etc.
 - Filtering and search for Gallery
     - Search functionality can search over description and name right now which wouldn't be too difficult.
     - Sort functionality by likes, name, author, date added in gallery
@@ -9,12 +8,11 @@
 
 - Invite functionality
     - In the future, send email
-    - In the future, provide unique endpoint link to send and automatically propogate the invite stuff.
 
 - Things to look into before beta test:
     - Expiration of photos and bubls needs to be implemented
     - token expiration and refresh token mechanisms
-    - https to encrpy data in transit between client and server
+    - https to encrpyt data in transit between client and server
     - look into whether or not my encryption methods are good
     - input validation on client AND server side
     - Look into session management to track user sessions securely. 
@@ -28,5 +26,5 @@
 
 - Admin page in the bubls menu where the edit and delete are...
     - multiselect dropdown menu for kicking.
-- Deletion and cascading of bubls, pictures, and invitetokens automatically.
-    - Mongoose is buggy with the expire stuff...
+
+- Be able to edit photo name and description

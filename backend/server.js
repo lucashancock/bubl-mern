@@ -421,8 +421,8 @@ app.post("/bubljoin", verifyToken, async (req, res) => {
       return res.status(404).json({ error: "Bubl not found!" });
     }
 
-    // check if already a member.
-    if (bubl.members.includes(profile_id)) {
+    // check if already a member or admin.
+    if (bubl.members.includes(profile_id) || bubl.admins.includes(profile_id)) {
       return res.status(400).json({ error: "You are already a member" });
     }
     // check if bubl at capacity.
