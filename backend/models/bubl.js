@@ -43,7 +43,7 @@ bublSchema.pre("deleteOne", async function (next) {
     // will delete all of the photos associated with the bubl
     await Photo.deleteMany({ bubl_id: conditions.bubl_id });
     console.log("here");
-    // delete any invites to this bubl
+    // delete any invites/requests to this bubl
     await InviteToken.deleteMany({ bubl_id: conditions.bubl_id });
 
     next();

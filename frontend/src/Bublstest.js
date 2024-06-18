@@ -79,15 +79,13 @@ function BublsTest() {
             create or join a bubl
           </span>
         </button>
-        <button
-          className="relative flex items-center px-2 py-2 bg-white text-black outline outline-1 rounded-full transition-all duration-300 group ml-2"
-          onClick={handleGetBubls}
-        >
-          <span className="material-symbols-outlined">refresh</span>
-          <span className="opacity-0 w-0 text-nowrap transition-all duration-300 group-hover:w-40 group-hover:opacity-100">
-            refresh bubls
-          </span>
-        </button>
+        <div className="flex relative text-gray-500 items-center justify-center ">
+          <button onClick={handleGetBubls}>
+            <span className="material-symbols-outlined outline outline-white hover:outline-gray-500 hover:rotate-[360deg] p-2 rounded-full transition-all duration-300">
+              refresh
+            </span>
+          </button>
+        </div>
       </div>
       <>
         {loading ? (

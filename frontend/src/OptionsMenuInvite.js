@@ -27,27 +27,6 @@ function OptionsMenuInvite({ bubl_id }) {
 
   return (
     <>
-      <div>
-        <Toaster
-          toastOptions={{
-            className: "",
-            success: {
-              style: {
-                border: "1px solid #000000",
-                padding: "16px",
-                color: "#000000",
-              },
-            },
-            error: {
-              style: {
-                border: "1px solid #000000",
-                padding: "16px",
-                color: "#000000",
-              },
-            },
-          }}
-        />
-      </div>
       <div className="m-2 border rounded-2xl p-3">
         <div className="flex flex-col items-center ">
           <div className="w-full drop-shadow-none">

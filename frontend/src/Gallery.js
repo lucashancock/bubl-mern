@@ -11,7 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 const socket = io("http://localhost:3000");
 
 function Gallery() {
-  const { bubl_id } = useParams(); // Access bubl_id from the route params
+  const { bubl_id } = useParams();
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
@@ -20,19 +20,17 @@ function Gallery() {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [slideOutVisible, setSlideOutVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
   useEffect(() => {
-    // Join the room based on bubl_id
     socket.emit("joinRoom", bubl_id);
 
-    // Listen for photo updates in the specific room
     socket.on("photoUpdate", () => {
-      // console.log("new photo update came in, fetching...");
       fetchPhotos();
       fetchLikedPhotos();
     });
 
-    // Cleanup on component unmount
     return () => {
       socket.off("photoUpdate");
       socket.emit("leaveRoom", bubl_id);
@@ -88,7 +86,7 @@ function Gallery() {
   };
 
   useEffect(() => {
-    fetchPhotos(); // initial fetches
+    fetchPhotos();
     fetchLikedPhotos();
   }, []);
 
@@ -128,7 +126,6 @@ function Gallery() {
         {},
         { headers: { Authorization: token } }
       );
-      // Add the photoId to likedPhotos state
       setLikedPhotos((prevLikedPhotos) => [...prevLikedPhotos, photoId]);
       toast.success("Successfully liked photo!");
     } catch (error) {
@@ -144,13 +141,47 @@ function Gallery() {
         {},
         { headers: { Authorization: token } }
       );
-      // Remove the photoId from likedPhotos state
       setLikedPhotos((prevLikedPhotos) =>
         prevLikedPhotos.filter((id) => id !== photoId)
       );
       toast.success("Successful unlike!");
     } catch (error) {
       toast.error("Failed to unlike. Try again.");
+    }
+  };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSort = (e) => {
+    setSortOrder(e.target.value);
+  };
+
+  const filteredAndSortedPhotos = () => {
+    let filteredPhotos = photos.filter((photo) =>
+      photo.photoname.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    switch (sortOrder) {
+      case "likesAsc":
+        return filteredPhotos.sort((a, b) => a.likes.length - b.likes.length);
+      case "likesDesc":
+        return filteredPhotos.sort((a, b) => b.likes.length - a.likes.length);
+      case "alphabetical":
+        return filteredPhotos.sort((a, b) =>
+          a.photoname.localeCompare(b.photoname)
+        );
+      case "dateAddedAsc":
+        return filteredPhotos.sort(
+          (a, b) => new Date(b.start_date) - new Date(a.start_date)
+        );
+      case "dateAddedDesc":
+        return filteredPhotos.sort(
+          (a, b) => new Date(a.start_date) - new Date(b.start_date)
+        );
+      default:
+        return filteredPhotos;
     }
   };
 
@@ -217,47 +248,63 @@ function Gallery() {
             </button>
           </div>
 
-          <>
-            {photos.length === 0 ? (
-              <>
-                <div>
-                  <p className="text-center w-full"> no photos! </p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 p-3 md:grid-cols-3 gap-4">
-                  {photos.map((photo) => (
+          <div className="flex mb-6">
+            <input
+              type="text"
+              className="border p-2 pl-4 rounded-2xl ml-3 flex-grow"
+              placeholder="search photos"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <select
+              className="border block border-gray-400 p-2 pl-4 w-min focus:border-blue-500 focus:ring-blue-500 rounded-2xl mx-6 "
+              value={sortOrder}
+              onChange={handleSort}
+            >
+              <option value="">sort by</option>
+              <option value="likesAsc">likes (ascending)</option>
+              <option value="likesDesc">likes (descending)</option>
+              <option value="alphabetical">alphabetical</option>
+              <option value="dateAddedAsc">date added (latest first)</option>
+              <option value="dateAddedDesc">date added (earliest first)</option>
+            </select>
+          </div>
+
+          {photos.length === 0 ? (
+            <div>
+              <p className="text-center w-full"> no photos! </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 p-3 md:grid-cols-3 gap-4">
+              {filteredAndSortedPhotos().map((photo) => (
+                <div
+                  key={photo.picture_id}
+                  className="cursor-pointer flex flex-col rounded-3xl border aspect-[16:9] items-center justify-center overflow-hidden transition duration-300 transform hover:shadow-xl"
+                >
+                  <div className="flex-grow">
+                    <img
+                      className="object-cover w-full h-full rounded-3xl drop-shadow-lg"
+                      src={`data:${photo.data.mimeType};base64,${photo.data.bytes}`}
+                      alt={photo.data.filename}
+                      onClick={() => handleImageOpen(photo)}
+                    />
+                  </div>
+                  <div className="absolute flex bg-white bottom-3 w-11/12 outline-black border rounded-full bg-opacity-60">
                     <div
-                      key={photo.picture_id}
-                      className="cursor-pointer flex flex-col rounded-3xl border aspect-[16:9] items-center justify-center overflow-hidden transition duration-300 transform hover:shadow-xl"
+                      className="flex flex-auto justify-center items-center font-semibold"
+                      onClick={() => handleImageOpen(photo)}
                     >
-                      <div className="flex-grow">
-                        <img
-                          className="object-cover w-full h-full rounded-3xl drop-shadow-lg"
-                          src={`data:${photo.data.mimeType};base64,${photo.data.bytes}`}
-                          alt={photo.data.filename}
-                          onClick={() => handleImageOpen(photo)}
-                        />
-                      </div>
-                      <div className="absolute flex bg-white bottom-3 w-11/12 outline-black border rounded-full bg-opacity-60">
-                        <div
-                          className="flex flex-auto justify-center items-center font-semibold"
-                          onClick={() => handleImageOpen(photo)}
-                        >
-                          <span className="mr-3 text-center items-center justify-center">
-                            {photo.photoname}
-                          </span>
-                          <i className="fa-regular fa-heart mr-1"></i>
-                          {photo.likes.length}
-                        </div>
-                      </div>
+                      <span className="mr-3 text-center items-center justify-center">
+                        {photo.photoname}
+                      </span>
+                      <i className="fa-regular fa-heart mr-1"></i>
+                      {photo.likes.length}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </>
-            )}
-          </>
+              ))}
+            </div>
+          )}
 
           {uploadModalVisible && (
             <UploadPhotoModal

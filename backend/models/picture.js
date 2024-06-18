@@ -25,6 +25,7 @@ const pictureSchema = new mongoose.Schema(
       mimeType: { type: String },
       filename: { type: String },
     },
+    start_date: { type: Date, required: true, default: Date.now },
     end_date: { type: Date, required: false, expires: 0 },
   },
   { collection: "pictures" }

@@ -33,26 +33,6 @@ function JoinBubl({ onSuccess }) {
 
   return (
     <>
-      <Toaster
-        toastOptions={{
-          className: "",
-          id: "toast",
-          success: {
-            style: {
-              border: "1px solid #000000",
-              padding: "16px",
-              color: "#000000",
-            },
-          },
-          error: {
-            style: {
-              border: "1px solid #000000",
-              padding: "16px",
-              color: "#000000",
-            },
-          },
-        }}
-      />
       <form onSubmit={handleJoinBubl} className="h-full flex flex-col">
         <div className="flex flex-col m-3 border bg-white p-4 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
           <div className="mb-4">

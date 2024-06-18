@@ -19,6 +19,8 @@ const { Server } = require("socket.io"); // for socket live gallery
 
 const PORT = 3000;
 const SECRET_KEY = "lucashancock"; // should be securely stored in the future!!!
+// const REFRESH_SECRET_KEY = "lucashancock_refresh"; // for token refresh
+// const TOKEN_EXPIRATION_TIME = "15m"; // for token expiration
 const ENCRYPTION_KEY = "12345123451234512345123451234512"; // for the encryption. has to be 32 bytes exact. Also should be securely stored somewhere
 const IV_LENGTH = 16; // always 16 for the encryption method I chose.
 const hostname = "localhost";
