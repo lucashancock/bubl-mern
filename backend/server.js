@@ -557,7 +557,7 @@ function decrypt(text) {
 app.post(
   "/photoupload",
   verifyToken,
-  upload.single("photo"),
+  upload.array("photos", 3),
   async (req, res) => {
     try {
       const { photoname, photodesc, bubl_id } = req.body;
@@ -569,39 +569,46 @@ app.post(
       const user = await Profile.findOne({ profile_id: profile_id });
       if (!user) return res.status(404).json({ error: "User doesn't exist." });
 
-      if (!req.file) return res.status(400).send("No file uploaded.");
+      if (!req.files || req.files.length === 0)
+        return res.status(400).send("No files uploaded.");
 
-      // Check if the uploaded file is a photo
       const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (!allowedMimeTypes.includes(req.file.mimetype))
-        return res.status(400).send("Uploaded file is not a valid photo.");
-      console.log(req.file);
-      // Generate a unique ID for the photo
-      const picture_id = "picture_" + crypto.randomUUID();
-      const base64Photo = req.file.buffer.toString("base64");
-      const encryptedPhoto = encrypt(base64Photo);
-      // Create a photo object
-      const data = {
-        bytes: encryptedPhoto,
-        mimeType: req.file.mimetype,
-        filename: req.file.originalname,
-      };
-      const newPhoto = new Picture({
-        picture_id,
-        photoname,
-        description: photodesc,
-        creator_id: profile_id,
-        likes: [],
-        bubl_id,
-        data: data,
-      });
+      const uploadedPhotos = [];
+      console.log(req.files);
 
-      // Store the photo object in the array
-      await newPhoto.save();
+      for (const file of req.files) {
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          return res.status(400).send("Uploaded file is not a valid photo.");
+        }
+
+        const picture_id = "picture_" + crypto.randomUUID();
+        const base64Photo = file.buffer.toString("base64");
+        const encryptedPhoto = encrypt(base64Photo);
+
+        const data = {
+          bytes: encryptedPhoto,
+          mimeType: file.mimetype,
+          filename: file.originalname,
+        };
+
+        const newPhoto = new Picture({
+          picture_id,
+          photoname,
+          description: photodesc,
+          creator_id: profile_id,
+          likes: [],
+          bubl_id,
+          data: data,
+        });
+
+        uploadedPhotos.push(newPhoto);
+      }
+
+      await Picture.insertMany(uploadedPhotos);
       io.to(bubl_id).emit("photoUpdate");
-      return res.status(200).json({ message: "Photo uploaded successfully!" });
+      return res.status(200).json({ message: "Photos uploaded successfully!" });
     } catch (error) {
-      return res.status(500).json({ error: "Error uploading photo." });
+      return res.status(500).json({ error: "Error uploading photos." });
     }
   }
 );
@@ -616,7 +623,6 @@ app.post("/bublphotos", verifyToken, async (req, res) => {
     if (!bubl_id || !profile_id) {
       return res.status(404).json("Error");
     }
-
     const bubl = await Bubl.findOne({ bubl_id: bubl_id });
     if (!bubl) {
       return res.status(404).json("Error");
@@ -645,6 +651,7 @@ app.post("/bublphotos", verifyToken, async (req, res) => {
           creator_username: creatorUser
             ? creatorUser.username
             : "deleted account",
+          profile_id: profile_id,
           data: {
             ...picture.data,
             bytes: decryptedBytes,
@@ -653,11 +660,43 @@ app.post("/bublphotos", verifyToken, async (req, res) => {
       })
     );
 
-    return res
-      .status(200)
-      .json({ displayName: bubl.name, returnArr: returnArr });
+    const likedPhotos = returnArr
+      .filter((picture) => picture.likes.includes(profile_id))
+      .map((picture) => picture.picture_id);
+    // console.log(likedPhotos);
+    return res.status(200).json({
+      displayName: bubl.name,
+      returnArr: returnArr,
+      likedPhotos: likedPhotos,
+    });
   } catch (error) {
     return res.status(500).json({ error: "Failed to retrieve bubl photos." });
+  }
+});
+
+// Endpoint to edit an image
+app.post("/edit/:id", verifyToken, async (req, res) => {
+  try {
+    const photoId = req.params.id;
+    const { profile_id } = req.profile_id;
+    const { newName, newDesc } = req.body;
+
+    const photo = await Picture.findOne({ picture_id: photoId });
+    if (!photo) {
+      return res.status(404).json({ error: "Photo not found" });
+    }
+    if (photo.creator_id !== profile_id) {
+      return res.status(400).json({
+        error: "You cannot edit, you are not the uploader of this photo.",
+      });
+    }
+    photo.photoname = newName;
+    photo.description = newDesc;
+    await photo.save();
+    io.to(photo.bubl_id).emit("photoUpdate");
+    return res.status(200).json({ message: "Photo edited successfully" });
+  } catch (error) {
+    return res.status(500).json({ error: "Fatal error editing photo." });
   }
 });
 

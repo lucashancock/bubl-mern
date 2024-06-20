@@ -1,10 +1,7 @@
 - Permissions and tiers 
 
-- Filtering and search for Gallery
-    - Search functionality can search over description and name right now which wouldn't be too difficult.
-    - Sort functionality by likes, name, author, date added in gallery
-
 - Implement capacity on # of active user bubls. Join certain numbers for different tiers.
+    - 1 active free tier
 
 - Invite functionality
     - In the future, send email
@@ -23,8 +20,7 @@
         - optimization of app. look into webRTC again for socket based connection instead of pinging the backend API every second for update
         - OR implement a refresh button/functionality.
 
-
 - Admin page in the bubls menu where the edit and delete are...
     - multiselect dropdown menu for kicking.
 
-- Be able to edit photo name and description
+- separate search bar into 3 sections ( name: _____ | description: _____ | tags: [school][cat] )

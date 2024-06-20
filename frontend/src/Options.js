@@ -31,12 +31,12 @@ function Options({ bubl_id, onClose }) {
           style={{ transform: `translateX(${isVisible ? 0 : "100%"})` }}
         >
           <div className="p-4 flex items-center justify-between">
-            <span className="flex flex-grow bg-black text-white justify-center py-1 rounded-3xl text-lg ml-1">
+            <span className="flex flex-grow pl-3 text-white bg-black  text-lg justify-center py-1 rounded-3xl ml-1">
               more
             </span>
             <button
               onClick={handleClose}
-              className="relative flex justify-end px-2 py-2 ml-2 bg-gray-500 text-white rounded-full focus:outline-none transition-all duration-300 group"
+              className="relative flex justify-end px-2 border py-2 ml-2 bg-gray-500 text-white rounded-full hover:bg-gray-700 transition-all duration-300 group"
             >
               <span className="material-symbols-outlined transition-all duration-300">
                 close

@@ -130,8 +130,8 @@ const Profile = ({ onLogout }) => {
           </span>
         </div>
       </div>
-      <div className="p-4">
-        <h1 className="text-xl font-bold ml-2 mb-4">user info</h1>
+      <div className="p-4 border rounded-2xl m-2 ">
+        <h1 className="text-xl font-bold text-center ml-2 mb-4">user info</h1>
         <div className="mb-4 border rounded-2xl p-3">
           {/* <p><strong>user ID:</strong> {profile.profile_id}</p> */}
           <p>
@@ -146,7 +146,9 @@ const Profile = ({ onLogout }) => {
         </div>
 
         <div className="mb-4">
-          <h2 className="text-xl font-bold ml-2 mb-2">update profile</h2>
+          <h2 className="text-xl text-center font-bold ml-2 mb-2">
+            update profile
+          </h2>
           <label className="block ml-2">new username:</label>
           <input
             type="text"
@@ -174,7 +176,7 @@ const Profile = ({ onLogout }) => {
           <label className="block ml-2">password:</label>
           <input
             type="password"
-            placeholder="password"
+            placeholder="please retype your password to confirm deletion"
             onChange={(e) => setNewPassword(e.target.value)}
             className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 mb-4 w-full"
           />

@@ -50,7 +50,7 @@ function OptionsMenuLeave({ bubl_id }) {
         }}
       />
       <button
-        className="bg-gray-400 text-white text-base rounded-full w-full py-1 outline-2 hover:bg-red-600 hover:text-white transition duration-300"
+        className="bg-red-600 text-white  rounded-full w-full py-1  hover:bg-red-800 hover:text-white transition duration-300"
         onClick={handleLeave}
       >
         leave bubl

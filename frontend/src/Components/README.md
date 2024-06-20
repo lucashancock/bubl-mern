@@ -1,1 +1,1 @@
-## For React components
+## For Smaller React components

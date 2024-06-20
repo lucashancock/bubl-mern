@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import CreateJoinModal from "./CreateJoinModal";
 import CountdownTimer from "./Components/CountdownTimer";
 import { hostname } from "./App";
@@ -8,6 +7,7 @@ import { format } from "date-fns";
 import InvitesDisplay from "./InvitesDisplay";
 import EditBublModal from "./EditBublModal";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function BublsTest() {
   const [showModal, setShowModal] = useState(false);
@@ -16,10 +16,16 @@ function BublsTest() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentBublId, setCurrentBublId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const openEditModal = (bublId) => {
     setCurrentBublId(bublId);
     setShowEditModal(true);
+  };
+
+  const handleClick = (bubl_id) => {
+    console.log(bubl_id);
+    navigate("/gallery", { state: { bubl_id: bubl_id } });
   };
 
   const closeEditModal = () => {
@@ -135,16 +141,17 @@ function BublsTest() {
                         </div>
                       </div>
                       <div>
-                        <Link to={`/gallery/${item.bubl_id}`}>
-                          <button className="relative flex ml-1 mr-1 items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group">
-                            <span className="material-symbols-outlined transition-all duration-300">
-                              arrow_forward
-                            </span>
-                            <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">
-                              <span>enter</span>
-                            </span>
-                          </button>
-                        </Link>
+                        <button
+                          className="relative flex ml-1 mr-1 items-center px-2 py-2 border border-black rounded-full focus:outline-none transition-all duration-300 group"
+                          onClick={() => handleClick(item.bubl_id)}
+                        >
+                          <span className="material-symbols-outlined transition-all duration-300">
+                            arrow_forward
+                          </span>
+                          <span className="opacity-0 w-0 text-white transition-all duration-300 group-hover:w-20 group-hover:opacity-100 group-hover:text-black">
+                            <span>enter</span>
+                          </span>
+                        </button>
                       </div>
                       {item.role === "creator" && (
                         <div className="flex">

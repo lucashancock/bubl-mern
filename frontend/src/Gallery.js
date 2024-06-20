@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import Banner2 from "./Components/Banner2";
 import UploadPhotoModal from "./UploadPhotoModal";
@@ -7,11 +7,13 @@ import Options from "./Options";
 import { hostname } from "./App";
 import io from "socket.io-client";
 import toast, { Toaster } from "react-hot-toast";
+import EditPopupModal from "./EditPhotoModal";
 
 const socket = io("http://localhost:3000");
 
 function Gallery() {
-  const { bubl_id } = useParams();
+  const location = useLocation();
+  const { bubl_id } = location.state || "";
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
@@ -21,16 +23,16 @@ function Gallery() {
   const [displayName, setDisplayName] = useState("");
   const [slideOutVisible, setSlideOutVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("");
+  const [sortOrder, setSortOrder] = useState("likesDesc");
+  // for the edit popup modal
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    fetchPhotos(); // initial fetch
     socket.emit("joinRoom", bubl_id);
-
     socket.on("photoUpdate", () => {
       fetchPhotos();
-      fetchLikedPhotos();
     });
-
     return () => {
       socket.off("photoUpdate");
       socket.emit("leaveRoom", bubl_id);
@@ -46,6 +48,7 @@ function Gallery() {
         { headers: { Authorization: token } }
       );
       setPhotos(response.data.returnArr);
+      setLikedPhotos(response.data.likedPhotos);
       if (!displayName) setDisplayName(response.data.displayName);
       setError("");
     } catch (error) {
@@ -53,22 +56,10 @@ function Gallery() {
     }
   };
 
-  const fetchLikedPhotos = async () => {
+  const handleDelete = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await axios.get(`http://${hostname}:3000/likedphotos`, {
-        headers: { Authorization: token },
-      });
-      setLikedPhotos(response.data.likedp);
-    } catch (error) {
-      console.error("Error fetching liked photos.");
-    }
-  };
-
-  const handleDelete = async (selectedImage) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      const response = await axios.post(
+      await axios.post(
         `http://${hostname}:3000/photodelete`,
         { picture_id: selectedImage.picture_id },
         {
@@ -78,17 +69,9 @@ function Gallery() {
       handleCloseImage();
       toast.success("Photo delete success!");
     } catch (error) {
-      console.error(
-        "Error deleting picture. You may not be the uploader or an admin."
-      );
       toast.error("Error deleting photo. Try again.");
     }
   };
-
-  useEffect(() => {
-    fetchPhotos();
-    fetchLikedPhotos();
-  }, []);
 
   const handleImageOpen = (photo) => {
     setSelectedImage(photo);
@@ -126,7 +109,6 @@ function Gallery() {
         {},
         { headers: { Authorization: token } }
       );
-      setLikedPhotos((prevLikedPhotos) => [...prevLikedPhotos, photoId]);
       toast.success("Successfully liked photo!");
     } catch (error) {
       toast.error("Error liking photo. Try again.");
@@ -141,21 +123,39 @@ function Gallery() {
         {},
         { headers: { Authorization: token } }
       );
-      setLikedPhotos((prevLikedPhotos) =>
-        prevLikedPhotos.filter((id) => id !== photoId)
-      );
       toast.success("Successful unlike!");
     } catch (error) {
       toast.error("Failed to unlike. Try again.");
     }
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleSort = (e) => {
-    setSortOrder(e.target.value);
+  const handleEdit = async (newName, newDescription) => {
+    try {
+      // Validate if newName is provided
+      if (newName.trim() === "") {
+        toast.error("Please provide a name.");
+        return;
+      }
+      // call the endpoint
+      const token = sessionStorage.getItem("token");
+      await axios.post(
+        `http://${hostname}:3000/edit/${selectedImage.picture_id}`,
+        { newName: newName, newDesc: newDescription },
+        { headers: { Authorization: token } }
+      );
+      toast.success("Successful edit!");
+      selectedImage.photoname = newName;
+      selectedImage.description = newDescription;
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Login failed. Please try again.");
+      }
+    } finally {
+      // Clear inputs afterwards
+      setIsOpen(false);
+    }
   };
 
   const filteredAndSortedPhotos = () => {
@@ -164,7 +164,6 @@ function Gallery() {
         photo.photoname.toLowerCase().includes(searchTerm.toLowerCase()) ||
         photo.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
     switch (sortOrder) {
       case "likesAsc":
         return filteredPhotos.sort((a, b) => a.likes.length - b.likes.length);
@@ -181,6 +180,10 @@ function Gallery() {
       case "dateAddedDesc":
         return filteredPhotos.sort(
           (a, b) => new Date(a.start_date) - new Date(b.start_date)
+        );
+      case "myPhotos":
+        return filteredPhotos.filter(
+          (photo) => photo.creator_id === photo.profile_id
         );
       default:
         return filteredPhotos;
@@ -256,19 +259,19 @@ function Gallery() {
               className="border p-2 pl-4 rounded-2xl ml-3 flex-grow"
               placeholder="search photos"
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
             <select
               className="border block border-gray-400 p-2 pl-4 w-min focus:border-blue-500 focus:ring-blue-500 rounded-2xl mx-3 "
               value={sortOrder}
-              onChange={handleSort}
+              onChange={(e) => setSortOrder(e.target.value)}
             >
-              <option value="">sort by</option>
               <option value="likesAsc">likes (ascending)</option>
               <option value="likesDesc">likes (descending)</option>
               <option value="alphabetical">alphabetical</option>
               <option value="dateAddedAsc">date added (latest first)</option>
               <option value="dateAddedDesc">date added (earliest first)</option>
+              <option value="myPhotos">my photos</option>
             </select>
           </div>
 
@@ -315,6 +318,12 @@ function Gallery() {
             />
           )}
 
+          {isOpen && (
+            <EditPopupModal
+              handleEdit={handleEdit}
+              handleClose={() => setIsOpen(false)}
+            />
+          )}
           {selectedImage && (
             <div
               className={`fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center transition-opacity duration-300 ${
@@ -352,6 +361,15 @@ function Gallery() {
                       onClick={handleCloseImage}
                     >
                       <i className="fa-solid fa-x"></i>
+                    </button>
+                  </div>
+                  <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">
+                    <button
+                      type="button"
+                      className="text-white transition-all duration-300 w-full"
+                      onClick={() => setIsOpen(true)}
+                    >
+                      <i className="fa-solid fa-edit mx-1"></i>
                     </button>
                   </div>
                   <div className="flex-initial p-2 w-10  mr-2 text-white bg-black rounded-full flex justify-center items-center transition-all duration-300">

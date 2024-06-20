@@ -69,7 +69,7 @@ function App() {
             token ? <Profile onLogout={handleLogout} /> : <Navigate to="/" />
           }
         />
-        <Route path="/gallery/:bubl_id" element={<Gallery />} />
+        <Route path="/gallery" element={<Gallery />} />
       </Routes>
     </Router>
   );
