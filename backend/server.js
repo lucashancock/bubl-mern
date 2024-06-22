@@ -560,7 +560,8 @@ app.post(
   upload.array("photos", 3),
   async (req, res) => {
     try {
-      const { photoname, photodesc, bubl_id } = req.body;
+      // photo_group is a unique string of the name of the photo group.
+      const { photoname, photodesc, bubl_id, photo_group } = req.body;
       const { profile_id } = req.profile_id;
 
       const bubl = await Bubl.findOne({ bubl_id: bubl_id });
@@ -598,6 +599,7 @@ app.post(
           creator_id: profile_id,
           likes: [],
           bubl_id,
+          photo_group: photo_group,
           data: data,
         });
 

@@ -25,7 +25,7 @@ function BublsTest() {
 
   const handleClick = (bubl_id) => {
     console.log(bubl_id);
-    navigate("/gallery", { state: { bubl_id: bubl_id } });
+    navigate("/pregallerytest", { state: { bubl_id: bubl_id } });
   };
 
   const closeEditModal = () => {

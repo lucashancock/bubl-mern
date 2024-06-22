@@ -12,6 +12,7 @@ import Bubls from "./Bubls";
 import Profile from "./Profile";
 import Gallery from "./Gallery";
 import About from "./Views/About";
+import PreGalleryTest from "./PreGalleryTest";
 
 export const hostname = "localhost";
 
@@ -70,6 +71,7 @@ function App() {
           }
         />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/pregallerytest" element={<PreGalleryTest />} />
       </Routes>
     </Router>
   );

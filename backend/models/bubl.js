@@ -22,6 +22,10 @@ const bublSchema = new mongoose.Schema(
       type: [{ type: String, ref: "Profile" }],
       default: [],
     },
+    photo_groups: {
+      type: [{ type: String }],
+      default: [],
+    },
     capacity: {
       type: Number,
       default: 5,

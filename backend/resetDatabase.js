@@ -25,7 +25,7 @@ async function resetDatabase() {
 
     await Profile.insertMany(profilesData);
     await Bubl.insertMany(bublsData);
-    await Picture.insertMany(picturesData);
+    // await Picture.insertMany(picturesData);
 
     console.log("Database reset successfully");
   } catch (error) {

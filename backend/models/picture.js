@@ -20,6 +20,10 @@ const pictureSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    photo_group: {
+      type: String,
+      required: true,
+    },
     data: {
       bytes: { type: String },
       mimeType: { type: String },
