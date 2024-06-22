@@ -22,11 +22,11 @@ function Gallery() {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [slideOutVisible, setSlideOutVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchName, setSearchName] = useState("");
+  const [searchDesc, setSearchDesc] = useState("");
   const [sortOrder, setSortOrder] = useState("likesDesc");
   // for the edit popup modal
   const [isOpen, setIsOpen] = useState(false);
-
   useEffect(() => {
     fetchPhotos(); // initial fetch
     socket.emit("joinRoom", bubl_id);
@@ -161,8 +161,8 @@ function Gallery() {
   const filteredAndSortedPhotos = () => {
     let filteredPhotos = photos.filter(
       (photo) =>
-        photo.photoname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        photo.description.toLowerCase().includes(searchTerm.toLowerCase())
+        photo.photoname.toLowerCase().includes(searchName.toLowerCase()) &&
+        photo.description.toLowerCase().includes(searchDesc.toLowerCase())
     );
     switch (sortOrder) {
       case "likesAsc":
@@ -253,13 +253,21 @@ function Gallery() {
             </button>
           </div>
 
+          {/* search bar here */}
           <div className="flex mb-6">
             <input
               type="text"
-              className="border p-2 pl-4 rounded-2xl ml-3 flex-grow"
-              placeholder="search photos"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border p-2 pl-4 rounded-l-2xl ml-3 flex-grow"
+              placeholder="search photo name"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+            />
+            <input
+              type="text"
+              className="border p-2 rounded-r-2xl flex-grow"
+              placeholder="search description"
+              value={searchDesc}
+              onChange={(e) => setSearchDesc(e.target.value)}
             />
             <select
               className="border block border-gray-400 p-2 pl-4 w-min focus:border-blue-500 focus:ring-blue-500 rounded-2xl mx-3 "
@@ -310,14 +318,12 @@ function Gallery() {
               ))}
             </div>
           )}
-
           {uploadModalVisible && (
             <UploadPhotoModal
               handleCloseUploadModal={() => setUploadModalVisible(false)}
               bubl_id={bubl_id}
             />
           )}
-
           {isOpen && (
             <EditPopupModal
               handleEdit={handleEdit}
