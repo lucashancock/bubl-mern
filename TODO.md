@@ -41,3 +41,6 @@
         - sorting functionality
         - should be able to take a lot of the functionality from the gallery and plop it right in.
     - don't worry about reworking the whole app. just do the base implementation and work from there. what i want to add here is purely JUST organization for the user. the pricing and other functionality still holds. this is a just a way for the user to organize their photos.
+
+- full screen button for individual photo viewing
+- button/switch for viewing all photos in the pregallery

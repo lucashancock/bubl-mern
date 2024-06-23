@@ -486,7 +486,7 @@ app.post("/bublleave", verifyToken, async (req, res) => {
     // filter out user from likes
     const pictures = await Picture.find({ bubl_id: bubl_id });
     for (const picture of pictures) {
-      await Picture.updateOne({ $pull: { likes: profile_id } });
+      await picture.updateOne({ $pull: { likes: profile_id } });
     }
 
     await bubl.save();
@@ -564,6 +564,7 @@ app.post(
       const { photoname, photodesc, bubl_id, photo_group } = req.body;
       const { profile_id } = req.profile_id;
 
+      // console.log(photo_group);
       const bubl = await Bubl.findOne({ bubl_id: bubl_id });
       if (!bubl) return res.status(404).json({ error: "Bubl doesn't exist." });
 
@@ -1186,6 +1187,94 @@ app.post("/bubledit", verifyToken, async (req, res) => {
     console.error("Error fetching Bubl info:", error);
     return res.status(500).json({ error: "Fatal error fetching Bubl info." });
   }
+});
+
+// End point to add a new photo group
+app.post("/addphotogroup", verifyToken, async (req, res) => {
+  try {
+    const { group_name, bubl_id } = req.body;
+    const { profile_id } = req.profile_id;
+
+    // check if the bubl exists
+    const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+    if (!bubl) {
+      return res.status(404).json({ error: "Bubl not found" });
+    }
+    // check that the user exists
+    const user = await Profile.findOne({ profile_id: profile_id });
+    if (!user) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+    // check if a group with that name already exists in the bubl.
+    if (bubl.photo_groups.includes(group_name)) {
+      return res.status(400).json({
+        error:
+          "That group name already exists in the bubl. Please choose a different name",
+      });
+    }
+    // otherwise, add the group_name to the photo_groups array.
+    bubl.photo_groups.push(group_name);
+    await bubl.save();
+
+    io.to(bubl_id).emit("photoUpdate");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/getbublphotogroups", verifyToken, async (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id } = req.body;
+
+  // Check bubl and user exist.
+  const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+  const user = await Profile.findOne({ profile_id: profile_id });
+  if (!bubl || !user) {
+    return res
+      .status(404)
+      .json({ error: "Could not find bubl or user. Try again." });
+  }
+
+  // Check that the user is a part of the bubl.
+  if (!bubl.members.includes(profile_id) && !bubl.admins.includes(profile_id)) {
+    return res.status(400).json({
+      error:
+        "You are not a part of this bubl. You cannot get the photo groups.",
+    });
+  }
+  // otherwise, they are in the bubl, return the photo groups.
+  return res.status(200).json({ photo_groups: bubl.photo_groups });
+});
+// End point to delete an existing photo group
+app.post("/deletephotogroup", verifyToken, async (req, res) => {
+  try {
+    // Extract bubl_id and group_name from the request body
+    const { bubl_id, group_name } = req.body;
+    // console.log(bubl_id, "\n", group_name);
+    // Find the Bubl document by bubl_id and profile_id and remove the group_name from photo_groups array
+    const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+    if (!bubl) {
+      return res.status(404).json({ error: "Bubl not found. " });
+    }
+    bubl.photo_groups = bubl.photo_groups.filter(
+      (group) => group !== group_name
+    );
+    // delete all photos in this photo group
+    await Picture.deleteMany({ photo_group: group_name });
+    await bubl.save();
+
+    io.to(bubl_id).emit("photoUpdate");
+    res.status(200).json({ message: "Photo group deleted successfully." });
+  } catch (error) {
+    // Handle errors
+    console.error("Error deleting photo group:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// End point for editing a photo group
+app.post("editphotogroup", verifyToken, async (req, res) => {
+  // TO-DO
 });
 
 // // Endpoint for debugging. Returns profiles list as json.
