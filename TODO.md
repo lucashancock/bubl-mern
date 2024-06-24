@@ -27,20 +27,6 @@
 
 - get rid of invalid bubls from bubls page with negative days before mongo deletes them
 
-- get rid of the name in the gallery
+- select photos functionality for downloading/liking
 
-- implement the bubl photo_groups
-    - each bubl should have a list of "photo_groups"
-    - starts off as []
-    - create endpoint for creation
-    - reactively display photo groups from backend
-    - when click a photo group, should display...
-        - photos in that photo group
-        - upload photo button/interface
-        - double click photos to like them/unlike them
-        - sorting functionality
-        - should be able to take a lot of the functionality from the gallery and plop it right in.
-    - don't worry about reworking the whole app. just do the base implementation and work from there. what i want to add here is purely JUST organization for the user. the pricing and other functionality still holds. this is a just a way for the user to organize their photos.
 
-- full screen button for individual photo viewing
-- button/switch for viewing all photos in the pregallery

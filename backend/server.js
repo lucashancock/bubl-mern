@@ -505,13 +505,15 @@ app.post("/photodelete", verifyToken, async (req, res) => {
     const { picture_id } = req.body;
     const { profile_id } = req.profile_id;
 
-    // make sure this is the owner of the photo.
+    // make sure this is the owner of the photo, or an admin.
     const pic = await Picture.findOne({ picture_id: picture_id });
-    if (pic.creator_id !== profile_id) {
+    const bubl = await Bubl.findOne({ bubl_id: pic.bubl_id });
+    if (pic.creator_id !== profile_id && !bubl.admins.includes(profile_id)) {
       return res
         .status(400)
         .json({ error: "You cant delete this photo, you are not the owner." });
     }
+
     // delete the photo.
     await Picture.deleteOne({ picture_id: picture_id });
     io.to(pic.bubl_id).emit("photoUpdate");
@@ -563,7 +565,7 @@ app.post(
       // photo_group is a unique string of the name of the photo group.
       const { photoname, photodesc, bubl_id, photo_group } = req.body;
       const { profile_id } = req.profile_id;
-
+      console.log("photo upload called");
       // console.log(photo_group);
       const bubl = await Bubl.findOne({ bubl_id: bubl_id });
       if (!bubl) return res.status(404).json({ error: "Bubl doesn't exist." });
@@ -641,6 +643,8 @@ app.post("/bublphotos", verifyToken, async (req, res) => {
       return res.status(400).json("Error");
     }
 
+    const role = bubl.admins.includes(profile_id) ? "admin" : "member";
+
     const pictures = await Picture.find({ bubl_id: bubl_id });
     const returnArr = await Promise.all(
       pictures.map(async (picture) => {
@@ -671,6 +675,8 @@ app.post("/bublphotos", verifyToken, async (req, res) => {
       displayName: bubl.name,
       returnArr: returnArr,
       likedPhotos: likedPhotos,
+      profile_id: profile_id,
+      role: role,
     });
   } catch (error) {
     return res.status(500).json({ error: "Failed to retrieve bubl photos." });

@@ -17,7 +17,7 @@ function Options({ bubl_id, onClose }) {
 
   return (
     <div
-      className={`fixed inset-0 overflow-hidden transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 overflow-hidden transition-opacity duration-300 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >

@@ -12,7 +12,7 @@ import Bubls from "./Bubls";
 import Profile from "./Profile";
 import Gallery from "./Gallery";
 import About from "./Views/About";
-import PreGalleryTest from "./PreGalleryTest";
+import PreGalleryTest from "./Gallery";
 
 export const hostname = "localhost";
 
@@ -70,8 +70,7 @@ function App() {
             token ? <Profile onLogout={handleLogout} /> : <Navigate to="/" />
           }
         />
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/pregallerytest" element={<PreGalleryTest />} />
+        <Route path="/gallery" element={<PreGalleryTest />} />
       </Routes>
     </Router>
   );
