@@ -286,9 +286,9 @@ function EditBublModal({ closeModal, handleGetBubls, bublId }) {
           <div className="">
             <button
               onClick={handleClose}
-              className="bg-gray-500 text-white px-4 py-2 w-full rounded-2xl hover:bg-gray-700 transition duration-300"
+              className="bg-white text-black outline outline-black outline-2 px-4 py-2 w-full rounded-2xl transition duration-300"
             >
-              Close
+              close
             </button>
           </div>
         </div>

@@ -14,7 +14,6 @@
     - Look into session management to track user sessions securely. 
     - Robust error handling mechanisms and frontend reactive displays when something goes wrong. (already have some, but not all. some will just throw error message to console.)
     - Get rid of all error messages showing up in the developer console on browser
-    - notifications for new uploads, comments, or likes.
     - pagination for when there is lots of photos.
 
 - Admin page in the bubls menu where the edit and delete are...
@@ -32,3 +31,5 @@
 
 - consolidate some of the backend endpoints to reduce number of calls. 
     - separate server.js into multiple files for organization
+
+- admin/settings page for bubls is kind of cluttered --> make the popup bigger and spread the stuff out
