@@ -1248,8 +1248,28 @@ app.post("/getbublphotogroups", verifyToken, async (req, res) => {
         "You are not a part of this bubl. You cannot get the photo groups.",
     });
   }
+  let returnArr = [];
+  const promises = bubl.photo_groups.map(async (photo_group) => {
+    const numPhotos = await Picture.find({ photo_group: photo_group });
+    return {
+      photo_group: photo_group,
+      numPhotos: numPhotos.length,
+      numLikes: numPhotos
+        .map((photo) => photo.likes.length)
+        .reduce((acc, cur) => acc + cur, 0),
+    };
+  });
+  await Promise.all(promises)
+    .then((results) => {
+      returnArr = results;
+      // console.log(returnArr);
+    })
+    .catch((error) => {
+      console.error("Error fetching numPhotos.", error);
+    });
+
   // otherwise, they are in the bubl, return the photo groups.
-  return res.status(200).json({ photo_groups: bubl.photo_groups });
+  return res.status(200).json({ returnArr: returnArr });
 });
 // End point to delete an existing photo group
 app.post("/deletephotogroup", verifyToken, async (req, res) => {

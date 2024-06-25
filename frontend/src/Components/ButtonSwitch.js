@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const ToggleButton = ({ onToggle }) => {
+const ToggleButton2 = ({ onToggle }) => {
   const [isActive, setIsActive] = useState("subls");
 
   const toggleButton = () => {
@@ -45,4 +45,4 @@ const ToggleButton = ({ onToggle }) => {
   );
 };
 
-export default ToggleButton;
+export default ToggleButton2;

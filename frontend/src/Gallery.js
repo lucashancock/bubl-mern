@@ -20,6 +20,8 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import ButtonSwitch from "./Components/ButtonSwitch";
+import ButtonSwitch2 from "./Components/ButtonSwitch2";
+import SublsDisplay from "./SublsDisplay";
 
 const socket = io("http://localhost:3000");
 
@@ -42,6 +44,16 @@ function PreGalleryTest() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [role, setRole] = useState("");
   const [toggleState, setToggleState] = useState("subls");
+  const [toggleState2, setToggleState2] = useState("on");
+
+  const [selectedBubl, setSelectedBubl] = useState(null);
+  const placeholder = [
+    { text: "A", size: 50 },
+    { text: "B", size: 200 },
+    { text: "C", size: 200 },
+    { text: "D", size: 100 },
+    { text: "E", size: 50 },
+  ];
 
   const handleFileChange = (fileItems) => {
     setSelectedFile(fileItems.map((fileItem) => fileItem.file));
@@ -51,7 +63,9 @@ function PreGalleryTest() {
     setToggleState(newState);
     // console.log("Toggle state in parent:", newState);
   };
-
+  const handleToggle2 = (newState) => {
+    setToggleState2(newState);
+  };
   // Fetch photoGroups function remains the same
   const fetchPhotoGroups = async () => {
     try {
@@ -61,7 +75,8 @@ function PreGalleryTest() {
         { bubl_id: bubl_id },
         { headers: { Authorization: token } }
       );
-      setPhotoGroups(response.data.photo_groups);
+      setPhotoGroups(response.data.returnArr);
+      // console.log(response.data.returnArr);
     } catch (error) {
       toast.error("Error getting photoGroups. Try refreshing the page.");
     }
@@ -120,7 +135,9 @@ function PreGalleryTest() {
   };
 
   const filteredPhotoGroups = () => {
-    return photoGroups.filter((group) => group.includes(searchGroupName));
+    return photoGroups.filter((group) =>
+      group.photo_group.includes(searchGroupName)
+    );
   };
 
   const sortedPhotos = (filteredPhotos) => {
@@ -228,6 +245,11 @@ function PreGalleryTest() {
     setSelectedGroup(input);
   };
 
+  const handleBublClick = (bubbleLabel) => {
+    setSelectedBubl(bubbleLabel);
+    setSelectedGroup(bubbleLabel);
+    // console.log(`Bubble clicked: ${bubbleLabel}`);
+  };
   return (
     <>
       <Toaster
@@ -293,7 +315,9 @@ function PreGalleryTest() {
             placeholder="search subls"
             value={searchGroupName}
             onChange={(e) => setSearchGroupname(e.target.value)}
-            disabled={toggleState === "photos" ? true : false}
+            disabled={
+              toggleState === "photos" || toggleState2 === "live" ? true : false
+            }
           />
         </div>
         {toggleState === "photos" ? (
@@ -314,7 +338,11 @@ function PreGalleryTest() {
               </select>
             </div>
           </>
-        ) : null}
+        ) : (
+          <div className="mr-2 flex">
+            <ButtonSwitch2 onToggle={handleToggle2} />
+          </div>
+        )}
         <div className="mr-2 sm:mt-0 sm:ml-0 ml-3 mt-3">
           <ButtonSwitch onToggle={handleToggle} />
         </div>
@@ -322,37 +350,43 @@ function PreGalleryTest() {
 
       {toggleState === "subls" ? (
         <>
-          {/* Grid display of all groups */}
-          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full ">
-            {filteredPhotoGroups().map((g_name, index) => (
-              <div
-                key={index}
-                className={`aspect-square flex-col w-full bg-white border-4 rounded-full flex items-center justify-center cursor-pointer `}
-                onClick={() => handleCircleClick(g_name)}
-              >
-                <span className="text-3xl font-light">{g_name}</span>
-                <div className="mt-2 flex">
-                  <i className="flex items-center justify-center fa-regular fa-images text-xl mr-2"></i>
-                  <span className="flex text-xl font-light">
-                    {
-                      photos.filter((photo) => photo.photo_group === g_name)
-                        .length
-                    }
-                  </span>
-                </div>
-                {/* Display the number of likes for each subl functionality. Currently kinda slows down the liking process. */}
-                {/* <div className="mt-1 flex">
-              <i className="flex items-center justify-center fa-regular fa-heart text-xl mr-2"></i>
-              <span className="flex text-xl font-light">
-                {photos
-                  .filter((photo) => photo.photo_group === g_name)
-                  .map((photo) => photo.likes.length)
-                  .reduce((acc, cur) => acc + cur, 0)}
-              </span>
-            </div> */}
+          {toggleState2 === "live" ? (
+            <SublsDisplay
+              bubbles={photoGroups}
+              onBubbleClick={handleBublClick}
+            />
+          ) : (
+            <>
+              {/* Grid display of all groups */}
+              <div className="mt-2 grid grid-cols-1 lg:grid-cols-3 sm:grid-cols-2 gap-4 w-full ">
+                {filteredPhotoGroups().map((group, index) => (
+                  <div
+                    key={index}
+                    className={`aspect-square flex-col w-full bg-white border-4 rounded-full flex items-center justify-center cursor-pointer `}
+                    onClick={() => handleCircleClick(group.photo_group)}
+                  >
+                    <span className="text-3xl font-light">
+                      {group.photo_group}
+                    </span>
+                    <div className="mt-2 flex">
+                      <i className="flex items-center justify-center fa-regular fa-images text-xl mr-2"></i>
+                      <span className="flex text-xl font-light">
+                        {group.numPhotos}
+                      </span>
+                    </div>
+                    {/* {/* Display the number of likes for each subl functionality. Currently kinda slows down the liking process.  */}
+                    <div className="mt-1 flex">
+                      <i className="flex items-center justify-center fa-regular fa-heart text-xl mr-2"></i>
+                      <span className="flex text-xl font-light">
+                        {group.numLikes}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
+
           {/* Selected group popup/gallery */}
           {selectedGroup && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex flex-col justify-center items-center">
@@ -392,7 +426,7 @@ function PreGalleryTest() {
                   ) : null}
                 </div>
 
-                <div className="flex-grow w-full h-full grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-scroll no-scrollbar">
+                <div className="flex-grow w-full h-full grid grid-cols-1 lg:grid-cols-3 sm:grid-cols-2 gap-2 overflow-y-scroll no-scrollbar">
                   {sortedPhotos(photos).map((photo, index) =>
                     photo.photo_group === selectedGroup ? (
                       <div key={index} className="relative m-2 flex-grow">
@@ -528,7 +562,7 @@ function PreGalleryTest() {
         </>
       ) : (
         <>
-          <div className="flex-grow w-full h-full grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-scroll no-scrollbar">
+          <div className="flex-grow w-full h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 overflow-y-scroll no-scrollbar">
             {photos.map((photo, index) => (
               <div key={index} className="relative m-2 flex-grow">
                 <div
