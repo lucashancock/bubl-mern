@@ -40,7 +40,7 @@ function OptionsMenuRequests({ handleGetBubls, bubl_id }) {
   const rejectRequest = async (email) => {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await axios.post(
+      await axios.post(
         `http://${hostname}:3000/rejectrequest`,
         { bubl_id, email },
         { headers: { Authorization: token } }

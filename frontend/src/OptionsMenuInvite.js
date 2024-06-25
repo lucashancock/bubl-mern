@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { hostname } from "./App";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function OptionsMenuInvite({ bubl_id }) {
   const [email, setEmail] = useState("");

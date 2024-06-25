@@ -10,7 +10,6 @@ import Login from "./Login";
 import Register from "./Register";
 import Bubls from "./Bubls";
 import Profile from "./Profile";
-import Gallery from "./Gallery";
 import About from "./Views/About";
 import PreGalleryTest from "./Gallery";
 

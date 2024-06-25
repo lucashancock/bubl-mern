@@ -490,7 +490,7 @@ app.post("/bublleave", verifyToken, async (req, res) => {
     }
 
     await bubl.save();
-
+    io.to(bubl_id).emit("photoUpdate");
     res.status(200).json("Successfully left bubl");
   } catch (error) {
     res.status(500).json({ error: "Bubl join failed" });

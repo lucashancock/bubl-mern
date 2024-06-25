@@ -30,7 +30,7 @@ function OptionsMenuInfo({ bubl_id }) {
 
     // Call the fetchBublInfo function when the component mounts
     fetchBublInfo();
-  }, []); // Empty dependency array to run the effect only once when the component mounts
+  }, [bubl_id]); // Empty dependency array to run the effect only once when the component mounts
 
   return (
     <div>

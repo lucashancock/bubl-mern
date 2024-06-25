@@ -46,15 +46,6 @@ function PreGalleryTest() {
   const [toggleState, setToggleState] = useState("subls");
   const [toggleState2, setToggleState2] = useState("on");
 
-  const [selectedBubl, setSelectedBubl] = useState(null);
-  const placeholder = [
-    { text: "A", size: 50 },
-    { text: "B", size: 200 },
-    { text: "C", size: 200 },
-    { text: "D", size: 100 },
-    { text: "E", size: 50 },
-  ];
-
   const handleFileChange = (fileItems) => {
     setSelectedFile(fileItems.map((fileItem) => fileItem.file));
   };
@@ -103,7 +94,7 @@ function PreGalleryTest() {
   const createGroup = async () => {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await axios.post(
+      await axios.post(
         `http://${hostname}:3000/addphotogroup`,
         { bubl_id: bubl_id, group_name: groupName },
         { headers: { Authorization: token } }
@@ -121,7 +112,7 @@ function PreGalleryTest() {
     try {
       const token = sessionStorage.getItem("token");
       // console.log(selectedGroup);
-      const response = await axios.post(
+      await axios.post(
         `http://${hostname}:3000/deletephotogroup`,
         { bubl_id: bubl_id, group_name: selectedGroup },
         { headers: { Authorization: token } }
@@ -246,7 +237,6 @@ function PreGalleryTest() {
   };
 
   const handleBublClick = (bubbleLabel) => {
-    setSelectedBubl(bubbleLabel);
     setSelectedGroup(bubbleLabel);
     // console.log(`Bubble clicked: ${bubbleLabel}`);
   };

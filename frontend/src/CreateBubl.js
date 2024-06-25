@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { hostname } from "./App";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function CreateBubl({ onSuccess }) {
   const [newBublName, setNewBublName] = useState("");

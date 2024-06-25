@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 
 export default function SublsDisplay({ bubbles, onBubbleClick }) {
