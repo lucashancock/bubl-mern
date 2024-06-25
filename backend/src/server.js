@@ -10,10 +10,10 @@ const multer = require("multer"); // for uploading of pictures. ** maybe change 
 const validator = require("validator"); // for validating user input
 const connectDB = require("./db");
 const resetDatabase = require("./resetDatabase");
-const Profile = require("./models/profile"); // see file for more information about Profile
-const Bubl = require("./models/bubl"); // see file for more info
-const Picture = require("./models/picture"); // see file for more info
-const InviteToken = require("./models/invitetoken");
+const Profile = require("../models/profile"); // see file for more information about Profile
+const Bubl = require("../models/bubl"); // see file for more info
+const Picture = require("../models/picture"); // see file for more info
+const InviteToken = require("../models/invitetoken");
 const http = require("http"); // for RTC socket live gallery
 const { Server } = require("socket.io"); // for socket live gallery
 
@@ -562,13 +562,14 @@ app.post(
   upload.array("photos", 3),
   async (req, res) => {
     try {
-      // photo_group is a unique string of the name of the photo group.
+      // Extract data from the request body and files
       const { photoname, photodesc, bubl_id, photo_group } = req.body;
       const { profile_id } = req.profile_id;
-      console.log("photo upload called");
-      // console.log(photo_group);
+
+      // Find the bubl and user
       const bubl = await Bubl.findOne({ bubl_id: bubl_id });
       if (!bubl) return res.status(404).json({ error: "Bubl doesn't exist." });
+      // console.log("here");
 
       const user = await Profile.findOne({ profile_id: profile_id });
       if (!user) return res.status(404).json({ error: "User doesn't exist." });
@@ -577,12 +578,13 @@ app.post(
         return res.status(400).send("No files uploaded.");
 
       const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
-      const uploadedPhotos = [];
-      console.log(req.files);
 
+      // Add photos and update storage
       for (const file of req.files) {
         if (!allowedMimeTypes.includes(file.mimetype)) {
-          return res.status(400).send("Uploaded file is not a valid photo.");
+          return res
+            .status(400)
+            .json({ error: "Uploaded file is not a valid photo." });
         }
 
         const picture_id = "picture_" + crypto.randomUUID();
@@ -602,17 +604,20 @@ app.post(
           creator_id: profile_id,
           likes: [],
           bubl_id,
+          num_bytes: file.size,
           photo_group: photo_group,
           data: data,
         });
-
-        uploadedPhotos.push(newPhoto);
+        await newPhoto.save();
       }
 
-      await Picture.insertMany(uploadedPhotos);
+      // Update bubl storage
+      await bubl.save();
       io.to(bubl_id).emit("photoUpdate");
       return res.status(200).json({ message: "Photos uploaded successfully!" });
     } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(500).json({ error: "Error uploading photos." });
     }
   }
@@ -815,7 +820,7 @@ app.post("/invite", verifyToken, async (req, res) => {
       await new InviteToken({
         token,
         sender_id: sender.profile_id,
-        receiver_id: receiver.profile_id,
+        // receiver_id: receiver.profile_id,
         email,
         bubl_id,
         type: "invite",
@@ -870,6 +875,7 @@ app.post("/invite", verifyToken, async (req, res) => {
       link: link,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to send invite" });
   }
 });
@@ -1285,7 +1291,8 @@ app.post("/deletephotogroup", verifyToken, async (req, res) => {
     bubl.photo_groups = bubl.photo_groups.filter(
       (group) => group !== group_name
     );
-    // delete all photos in this photo group
+    // delete all photos in this photo group and bookkeep their sizes in the bubl
+    // await Picture.deleteMany({ photo_group: group_name });
     await Picture.deleteMany({ photo_group: group_name });
     await bubl.save();
 
@@ -1302,21 +1309,6 @@ app.post("/deletephotogroup", verifyToken, async (req, res) => {
 app.post("editphotogroup", verifyToken, async (req, res) => {
   // TO-DO
 });
-
-// // Endpoint for debugging. Returns profiles list as json.
-// app.get("/getusers", verifyToken, (_, res) => {
-//   res.json(Profile.find());
-// });
-
-// // Endpoint for debugging. Returns bubls list as json.
-// app.get("/getbubls", verifyToken, (_, res) => {
-//   res.json(Bubl.find());
-// });
-
-// // Endpoint for debugging.
-// app.get("/getpics", verifyToken, (_, res) => {
-//   res.json(Picture.find());
-// });
 
 // Start the server after resetting the database
 resetDatabase().then(() => {

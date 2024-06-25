@@ -30,6 +30,11 @@ const bublSchema = new mongoose.Schema(
       type: Number,
       default: 5,
     },
+    storage_capacity: {
+      type: Number,
+      default: 1000000000, // 1 GB by default for small size bubl
+      required: true,
+    },
     start_date: { type: Date, default: Date.now(), required: true },
     end_date: { type: Date, required: true, expires: 0 },
   },

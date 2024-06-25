@@ -27,3 +27,8 @@
 - select photos functionality for downloading/liking
 
 - try S3 storage on the NAS 
+
+- bubl storage capacity for the different tiers, and ability to upgrade within the settings menu
+
+- consolidate some of the backend endpoints to reduce number of calls. 
+    - separate server.js into multiple files for organization

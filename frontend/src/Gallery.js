@@ -532,11 +532,7 @@ function PreGalleryTest() {
                           Authorization: sessionStorage.getItem("token"),
                         },
                         withCredentials: false,
-                        onerror: (response) =>
-                          console.error(
-                            "Error uploading photoGroups:",
-                            response
-                          ),
+                        onerror: (response) => toast.error(response),
                         ondata: (formData) => {
                           formData.append("photoname", "placeholder name");
                           formData.append("bubl_id", bubl_id);
@@ -563,7 +559,7 @@ function PreGalleryTest() {
       ) : (
         <>
           <div className="flex-grow w-full h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 overflow-y-scroll no-scrollbar">
-            {photos.map((photo, index) => (
+            {sortedPhotos(photos).map((photo, index) => (
               <div key={index} className="relative m-2 flex-grow">
                 <div
                   onClick={() => {
