@@ -42,17 +42,9 @@ function CreateBubl({ onSuccess }) {
         { headers: { Authorization: token } }
       );
 
-      setNewBublName(""); // Clear the input field
-      setSelectedDescription("");
-      setSelectedPrivacy("");
-      setSelectedSize("");
       toast.success("Successful bubl creation!");
       onSuccess(); // Invoke onSuccess callback when successful
     } catch (error) {
-      setNewBublName(""); // Clear the input field
-      setSelectedDescription("");
-      setSelectedPrivacy("");
-      setSelectedSize("");
       toast.error("Failed to create bubl. Try again.");
     }
   };

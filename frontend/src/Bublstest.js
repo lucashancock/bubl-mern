@@ -4,7 +4,6 @@ import CountdownTimer from "./Components/CountdownTimer";
 import { hostname } from "./App";
 import axios from "axios";
 import { format } from "date-fns";
-import InvitesDisplay from "./InvitesDisplay";
 import EditBublModal from "./EditBublModal";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +23,7 @@ function BublsTest() {
   };
 
   const handleClick = (bubl_id) => {
-    console.log(bubl_id);
+    // console.log(bubl_id);
     navigate("/gallery", { state: { bubl_id: bubl_id } });
   };
 
@@ -187,8 +186,6 @@ function BublsTest() {
           />
         )}
       </>
-
-      <InvitesDisplay handleGetBubls={handleGetBubls} />
     </>
   );
 }

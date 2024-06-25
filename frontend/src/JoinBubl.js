@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { hostname } from "./App";
 import toast from "react-hot-toast";
+import { hostname } from "./App";
 
 function JoinBubl({ onSuccess }) {
   const [bubl_id, setBublId] = useState("");
@@ -11,15 +11,14 @@ function JoinBubl({ onSuccess }) {
     try {
       const token = sessionStorage.getItem("token");
       const response = await axios.post(
-        `http://${hostname}:3000/bubljoin`, // response not used as of now
+        `http://${hostname}:3000/bubljoin`,
         { bubl_id: bubl_id },
         { headers: { Authorization: token } }
       );
-      // If join is successful, invoke onSuccess callback
       if (response.data.message === "requested") {
         toast.success("Requested to join private bubl.");
       } else {
-        toast.success("Successfuly joined bubl!");
+        toast.success("Successfully joined bubl!");
         onSuccess();
       }
     } catch (error) {
@@ -32,33 +31,21 @@ function JoinBubl({ onSuccess }) {
   };
 
   return (
-    <>
-      <form onSubmit={handleJoinBubl} className="h-full flex flex-col">
-        <div className="flex flex-col m-3 border bg-white p-4 rounded-3xl transition duration-300 transform hover:drop-shadow-lg">
-          <div className="mb-4">
-            <label htmlFor="bublId" className="block mb-2">
-              bubl id:
-            </label>
-            <input
-              id="bublId"
-              className="w-full p-2 px-3 border rounded-2xl"
-              type="text"
-              placeholder="join bubl id"
-              value={bubl_id}
-              onChange={(e) => setBublId(e.target.value)}
-            />
-          </div>
-          <div className="mt-auto">
-            <button
-              type="submit"
-              className="bg-black text-white py-2 px-4 w-full rounded-xl hover:bg-gray-800 transition duration-300"
-            >
-              join bubl
-            </button>
-          </div>
-        </div>
-      </form>
-    </>
+    <form onSubmit={handleJoinBubl} className="flex flex-col">
+      <div className="m-3 border bg-white p-4 rounded-3xl transition duration-300 transform flex">
+        <input
+          id="bublId"
+          className="flex flex-grow py-2 px-3 border rounded-2xl mr-2"
+          type="text"
+          placeholder="enter bubl id to request/join"
+          value={bubl_id}
+          onChange={(e) => setBublId(e.target.value)}
+        />
+        <button type="submit" className="bg-black text-white  px-4 rounded-2xl">
+          send
+        </button>
+      </div>
+    </form>
   );
 }
 

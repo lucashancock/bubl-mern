@@ -437,7 +437,7 @@ app.post("/bubljoin", verifyToken, async (req, res) => {
       await new InviteToken({
         token: "",
         sender_id: profile_id,
-        receiver_id: "",
+        receiver_id: bubl.creator_id,
         email: user.email,
         bubl_id: bubl_id,
         type: "request",
@@ -906,16 +906,22 @@ app.get("/usersinvites", verifyToken, async (req, res) => {
 
 app.post("/bublrequests", verifyToken, async (req, res) => {
   const { profile_id } = req.profile_id;
-  const { bubl_id } = req.body;
-  const bubl = await Bubl.findOne({ bubl_id: bubl_id });
-  if (!bubl) {
-    return res.status(404).json({ error: "Could not find bubl." });
-  }
-
-  const ret = await InviteToken.find({ bubl_id: bubl_id, type: "request" });
-  const returnArr = ret.map((val) => {
-    return val.email;
+  const requests = await InviteToken.find({
+    receiver_id: profile_id,
+    type: "request",
   });
+
+  const returnArr = await Promise.all(
+    requests.map(async (request) => {
+      const sender = await Profile.findOne({ profile_id: request.sender_id });
+      const bubl = await Bubl.findOne({ bubl_id: request.bubl_id });
+      return {
+        sender: sender.email,
+        bubl: bubl.name,
+        bubl_id: bubl.bubl_id,
+      };
+    })
+  );
   return res.status(200).json(returnArr || []);
 });
 
@@ -1066,7 +1072,11 @@ app.post("/mybubls", verifyToken, async (req, res) => {
 
     return res
       .status(200)
-      .json({ displayName: username, bubls_profile: bublsWithRole });
+      .json({
+        displayName: username,
+        bubls_profile: bublsWithRole,
+        owned_bubls: bublsWithRole.filter((bubl) => bubl.role === "creator"),
+      });
   } catch (error) {}
 });
 
