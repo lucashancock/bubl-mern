@@ -10,7 +10,7 @@ const ToggleButton = ({ onToggle }) => {
   };
 
   return (
-    <div className="w-32 h-full ">
+    <div className="w-48 h-full ">
       <div className="flex relative border rounded-full h-full w-full">
         {/* Background slider */}
         <div
