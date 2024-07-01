@@ -1,81 +1,78 @@
-## bubl.
+## bubl. (WIP)
 
 ### The photo sharing app made just for you.
 
----
+As it stands, this is a side project of mine to keep my skills sharp and also learn some new things over the summer of 2024. The web app consists of both a frontend and a backend, as well as a database, photo encryption, socket-based connections, complex state management, and authentication using JSON Web Tokens. The purpose of the app is to explore a missing niche in the context of photo sharing. That is, there often lacks some sort of unified software for photo sharing between and within groups, events, families, friends, etc. Bubl aims to provide temporary storage for such contexts with a seamless and integrated UI experience. This web application built mainly with React is a prototype of a more fully featured utility that may be developed soon for iOS devices. In the future, I hope for Bubl to be iOS application, where users can use its unified platform to share photos to one space, where all of your friends or other eventgoers can access them. Integration with other social media platforms on top of just your contacts like Instagram and Snapchat pose great opportunity for an app utility like Bubl, due to the rising popularity of using these apps as one's main form of communication. More detail on the app and the development process is as follows.
 
-Backend: Express
 
-Frontend: React
+### Technology Stack
 
-Database: MongoDB
+- Backend: Express
 
-Runtime: Node
+- Frontend: React
 
----
+- Database: MongoDB
 
-### Install dependencies:
+- Runtime: Node
 
-```
-npm install
-```
+- Authentication: JWT
 
-![https://stackoverflow.com/questions/8367031/how-do-i-install-package-json-dependencies-in-the-current-directory-using-npm]
+- Encryption: Bcrypt
 
----
+- Physics engine: Matter.js
 
-### To run:
+### Running the app
+
+1. Clone the repository
+2. Install dependencies (cd frontend and cd backend and install both folder's dependencies)
+3. Run the backend server
 
 ```
 cd backend
-node --watch server.js
+node --watch src/server.js
 ```
 
-Server then will run on PORT 3000 by default. --watch sets it in watch mode which will automatically update the server upon Save.
+4. Run the frontend client
 
 ```
 cd frontend (you have to cd .. once)
 npm start
 ```
 
-The terminal may prompt you to say (Y)es to run on another port since the backend is on 3000. Press Y. That will start the react frontend server and should automatically launch in your browser.
+SN: The terminal may prompt you to say (Y)es to run on another port since the backend is on 3000. Press Y. That will start the react frontend server and should automatically launch in your browser.
 
 ---
 
-### Development:
+### Development Process
 
 #### Frontend
 
-- Built with React.
-- Currently its (kind of, very) messy since I'm still a noob with React.
-- The `src` folder houses all of the React components. They are (mostly) bite sized chunks of the entire web app. They can pass props and state between eachother. I'd recommend watching a React crash course if you intend on developing the frontend on this project.
-- To create a new react component, just create a new "___.js" file and start coding! Linking it up to the rest of the application will take some experience with React. Reach out to Lucas if you need help (although he doesn't really know what he's doing).
-- Styling is done using Tailwind CSS. To apply styles, you can use the className tag in an html element. Tailwind requires a bit of finnicking to get right. ChatGPT has no design skills, be warned.
+- The frontend is built mainly with React. Before this project, I had little to no experience with React. I knew how popular it is, and wanted to learn something new so I gave it a try.
+- From previous experience trying to build webapps, I was a little afraid of plain CSS. So instead, I built the project with Tailwind CSS. I love that tailwind minimizes the amount of separate files and overall complexity that is usually brought when trying to style something. My only gripe with Tailwind is that sometimes the classNames can get very long-winded, but thats no real fault of the technology itself. 
+- I wanted the app to have a lot of interactive and nice-looking parts to it. Because of this, I opted for nice sidebar menus and modals instead of a entirely page based system where everything is its own rendered html template. 
+- I tried to make the app comfortable to use and interactive by including animations and also an entire physics simulation using Matter.js. I am no UI/UX designer at all, so any feedback is appreciated.
+- Overall, I'm really glad with how the frontend UI is coming along so far. I think it could use a little bit of simplification right now, but its coming along.
 
 #### Backend
 
-- Built with Express.js and Node.js
-- Node.js is the javascript runtime and Express.js allows for quick and easy API creation and server stuff. 
-- Feel free to add any new libraries you might need in your development. You can install a new library by navigating to the backend directory in your terminal and doing `npm install {library here}`. Same goes for the frontend. 
-- Currently, the backend is just one, big server.js file. Eek. I didn't feel like separating it, and just let it grow bigger and bigger. 
-- Currently, the "database" I am serving to the frontend is just a javascript array of objects. Eventually, I will migrate all of this code to MongoDB, which shouldn't be too bad.
-- Follow the other examples in the file for how to create an endpoint and also how to call it at certain points in the frontend. 
-- Files are currently stored as an encrypted base64 string. This will perhaps change when I migrate to Mongo. Keep that in mind when you are developing.
-- Feel free to refactor any of my messy code! I would really appreciate it (if it still works)... jk.
+- The backend for this project is made with Node.js and Express. All the backend really is is just a bunch of CRUD API endpoints to do various things with the database. That is, Bubl (and many other web applications) are simply just overly complex CRUD applications.
+- The backend is hooked up to a local MongoDB instance. More on that in the next section.
+- I handle photo encryption and authentication using bcrypt and jwt, respectively, in the backend. Implementing those ideas was not as hard as I thought it was, thanks to the expansive javascript/nodejs libraries.
+- The backend right now is a little bit of a mess and long-winded, but it gets the job done now for this prototype. 
+- If I were to redo the backend, I think I would definitely reconsider about organization and also look further into some other open source projects and tech stacks with how they go about handling their endpoints, authentication, verification, database CRUD operations, etc.
 
 #### Database
 
-- The backend database is a MongoDB database.
-- Make sure you have Mongodb installed on your machine. See this link for help: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/
-- I recommend downloading with brew. That's what worked for me.
-- Once installed, run `brew services start mongodb-community@7.0` to start up a mongodb local server on your machine. This allows for local development, until we eventually move to a cloud based alternative.
-- You can leave the service running (I think) even when you are done developing. But if you wanna shut it down, run `brew services stop mongodb-community`.
-- For coding the backend, please use mongoose to interact with the database.
-- When you Save the server.js file, the database will reset to the data defined in `pictures.json`, `profiles.json`, and `bubls.json`. This is to aid debugging, for example, if you enter a item into the database that you don't want there. You can also manipulate the .json files in the backend folder if you want to start the server with different values. 
-- `db.js` just starts the mongodb connection.
-- `resetDabase.js` resets the database as mentioned earlier.
+- For this project, I am using a local instance of MongoDB community edition.
+- I used MongoDB because the MERN stack is really popular.
+- I separated my database into collections of users, pictures, bubls, and invites. Most of them have foreign keys to other collections, which was causing me some issues. Also, I ended up using UUID strings to uniquely identify items (which worked for my purposes...) but MongoDB was yelling at me a little bit trying to get me to convert my IDs to ObjectIDs. However, I couldn't seem to get the conversion to work properly after hours of effort, so I kept the string UUIDs. 
+- Another gripe I had while working with MongoDB is that there is not really a concept of a cascading delete. For example, if I wanted to delete a Bubl and that bubl had an array of photoIDs within it, when I deleted the Bubl, the photos wouldn't get deleted. I looked online and it seems like MongoDB doesn't really support this, and instead people on stackoverflow were recommending to just chunk everything together into one collection/document instead of separating across 3 or 4. That didn't really seem like the best alternative to me, so instead I manually wrote all of the cascading deletion edge cases. There were a lot of tricky edge cases with my database schema, so I might be missing one. Again, works fine for a prototype.
+- If I were to change the database in the future ever again, I'd definitely use a relational database that supports cascading deletions and use some sort of GraphQL querying language or something like PostGRES SQL.
+- Other than that, I used Mongoose to set up the models and do a lot of the CRUD operations. I wanted photos and bubls to automatically delete themselves after some ending date, too, and MongoDB didn't seem to have a surefire way of doing this out of the box. Mongoose helped here, and allowed me to set an expiration time to my schema. Figuring that out was a little difficult because my MongoDB instance was caching my old schemas so sometimes I had to completely erase the collection and remake it for the expiration index to go into effect. Also, mongo only checks these expiration indexes every minute or so, so there are times where you might have an invalid item sitting in your database for a few seconds.
+- Despite the headache these things caused, it was all a great learning experience
 
-## Any other questions -> reach out to me
+- Looking forward to developing Bubl more and migrating to an iOS application! If you are interested in helping develop Bubl, please reach out to me!
 
 ### Built-by: Lucas Hancock
 
+Questions? Reach out to me: lucas.hancock18@gmail.com
