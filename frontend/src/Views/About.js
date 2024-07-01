@@ -1,7 +1,6 @@
 import React from "react";
 import Banner from "../Components/Banner";
 import { Link } from "react-router-dom";
-import CreateBubl from "../CreateBubl";
 
 function About() {
   return (

@@ -17,7 +17,7 @@ function Options({ bubl_id, onClose }) {
 
   return (
     <div
-      className={`fixed inset-0 overflow-hidden transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 overflow-hidden transition-opacity duration-300 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -36,7 +36,7 @@ function Options({ bubl_id, onClose }) {
             </span>
             <button
               onClick={handleClose}
-              className="relative flex justify-end px-2 border py-2 ml-2 bg-gray-500 text-white rounded-full hover:bg-gray-700 transition-all duration-300 group"
+              className="relative flex justify-end px-1 border py-1 ml-2 bg-white text-black outline outline-black rounded-full  transition-all duration-300 group"
             >
               <span className="material-symbols-outlined transition-all duration-300">
                 close

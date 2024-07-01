@@ -10,36 +10,30 @@ import Login from "./Login";
 import Register from "./Register";
 import Bubls from "./Bubls";
 import Profile from "./Profile";
-import Gallery from "./Gallery";
 import About from "./Views/About";
-
+import PreGalleryTest from "./Gallery";
+import InvitesDisplay from "./InvitesDisplay";
+import OptionsMenuRequests from "./OptionsMenuRequests";
+import AdminPage from "./AdminPage";
 export const hostname = "localhost";
 
 function App() {
   const [token, setToken] = useState(sessionStorage.getItem("token") || "");
-  const [username, setUsername] = useState(
-    sessionStorage.getItem("username") || ""
-  );
 
-  const handleLogin = (token, username) => {
+  const handleLogin = (token) => {
     setToken(token);
-    setUsername(username);
     sessionStorage.setItem("token", token);
-    sessionStorage.setItem("username", username);
   };
 
   const handleLogout = () => {
     setToken("");
-    setUsername("");
     sessionStorage.removeItem("token");
-    sessionStorage.removeItem("username");
   };
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
-    if (token) {
-      setToken(token);
-      setUsername(sessionStorage.getItem("username") || "");
+    const storedToken = sessionStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
     }
   }, []);
 
@@ -51,11 +45,7 @@ function App() {
         <Route
           path="/login"
           element={
-            token ? (
-              <Navigate to="/bubls" username={username} />
-            ) : (
-              <Login onLogin={handleLogin} />
-            )
+            token ? <Navigate to="/bubls" /> : <Login onLogin={handleLogin} />
           }
         />
         <Route path="/register" element={<Register />} />
@@ -66,10 +56,29 @@ function App() {
         <Route
           path="/profile"
           element={
-            token ? <Profile onLogout={handleLogout} /> : <Navigate to="/" />
+            token ? (
+              <Profile onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
-        <Route path="/gallery" element={<Gallery />} />
+        <Route
+          path="/gallery"
+          element={token ? <PreGalleryTest /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/invites"
+          element={token ? <InvitesDisplay /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/requests"
+          element={token ? <OptionsMenuRequests /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin"
+          element={token ? <AdminPage /> : <Navigate to="/login" />}
+        />
       </Routes>
     </Router>
   );

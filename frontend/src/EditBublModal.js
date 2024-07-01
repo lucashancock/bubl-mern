@@ -17,26 +17,6 @@ function EditBublModal({ closeModal, handleGetBubls, bublId }) {
     return () => setIsVisible(false);
   }, []);
 
-  const deleteBubl = async (bubl_id) => {
-    const token = sessionStorage.getItem("token");
-    try {
-      // setLoading(true);
-      await axios.post(
-        `http://${hostname}:3000/bubldelete`,
-        { bubl_id: bubl_id },
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      handleGetBubls();
-      handleClose();
-      toast.success("Bubl delete successful.");
-    } catch (error) {
-      toast.error("Error deleting bubl. Try again.");
-    }
-  };
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => closeModal(), 300);
@@ -65,15 +45,6 @@ function EditBublModal({ closeModal, handleGetBubls, bublId }) {
       handleGetBubls();
     } catch (error) {
       toast.error("Error editing bubl. Try again.");
-    }
-  };
-
-  const handleDeleteClick = (bubl_id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this bubl? This cannot be undone."
-    );
-    if (confirmed) {
-      deleteBubl(bubl_id);
     }
   };
 
@@ -213,82 +184,14 @@ function EditBublModal({ closeModal, handleGetBubls, bublId }) {
                 </div>
               </div>
             </form>
-            <div>
-              <h2 className="text-xl text-center font-bold mb-2 mt-5">
-                invite to {bublId.split("_")[0]}
-              </h2>
-              <h3 className="text-sm text-center font-light opacity-70">
-                to invite people to this bubl, enter their email below!
-              </h3>
-            </div>
-            <div>
-              <OptionsMenuInvite bubl_id={bublId} />
-            </div>
-            <div>
-              <h2 className="text-xl text-center font-bold mb-2 mt-5">
-                pending requests to join {bublId.split("_")[0]}
-              </h2>
-              <h3 className="text-sm text-center font-light opacity-70">
-                to accept people into this bubl, use the below interface.
-              </h3>
-            </div>
-            <div>
-              <OptionsMenuRequests
-                handleGetBubls={handleGetBubls}
-                bubl_id={bublId}
-              />
-            </div>
-            <div>
-              <h2 className="text-xl text-center font-bold mb-2 mt-5">
-                promote/demote users in {bublId.split("_")[0]}
-              </h2>
-              <h3 className="text-sm text-center font-light opacity-70">
-                as an admin, you can promote or demote users in your bubl.
-              </h3>
-            </div>
-            <div className="text-center bg-yellow-300">
-              promotion and demotions TO-DO
-            </div>
-
-            <div>
-              <h2 className="text-xl text-center font-bold mb-2 mt-5">
-                change permissions in {bublId.split("_")[0]}
-              </h2>
-              <h3 className="text-sm text-center font-light opacity-70">
-                as an admin, you can change the permissions of the users in your
-                bubl.
-              </h3>
-            </div>
-            <div className="text-center bg-yellow-300">
-              permissions (upload/view) TO-DO
-            </div>
-            <div>
-              <h2 className="text-xl text-center font-bold mb-2 mt-5">
-                delete {bublId.split("_")[0]}
-              </h2>
-              <h3 className="text-sm text-center font-light opacity-70">
-                to delete this bubl, click the button below. this cannot be
-                undone!
-              </h3>
-            </div>
-            <div className="">
-              <div className="border m-2 rounded-2xl p-3 px-4 hover:drop-shadow-lg">
-                <button
-                  onClick={() => handleDeleteClick(bublId)}
-                  className="bg-red-500 text-white px-4 py-2 w-full rounded-2xl hover:bg-red-700 transition duration-300"
-                >
-                  delete bubl
-                </button>
-              </div>
-            </div>
           </div>
           <br />
           <div className="">
             <button
               onClick={handleClose}
-              className="bg-gray-500 text-white px-4 py-2 w-full rounded-2xl hover:bg-gray-700 transition duration-300"
+              className="bg-white text-black outline outline-black outline-2 px-4 py-2 w-full rounded-2xl transition duration-300"
             >
-              Close
+              close
             </button>
           </div>
         </div>

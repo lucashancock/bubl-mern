@@ -10,10 +10,10 @@ const multer = require("multer"); // for uploading of pictures. ** maybe change 
 const validator = require("validator"); // for validating user input
 const connectDB = require("./db");
 const resetDatabase = require("./resetDatabase");
-const Profile = require("./models/profile"); // see file for more information about Profile
-const Bubl = require("./models/bubl"); // see file for more info
-const Picture = require("./models/picture"); // see file for more info
-const InviteToken = require("./models/invitetoken");
+const Profile = require("../models/profile"); // see file for more information about Profile
+const Bubl = require("../models/bubl"); // see file for more info
+const Picture = require("../models/picture"); // see file for more info
+const InviteToken = require("../models/invitetoken");
 const http = require("http"); // for RTC socket live gallery
 const { Server } = require("socket.io"); // for socket live gallery
 
@@ -437,7 +437,7 @@ app.post("/bubljoin", verifyToken, async (req, res) => {
       await new InviteToken({
         token: "",
         sender_id: profile_id,
-        receiver_id: "",
+        receiver_id: bubl.creator_id,
         email: user.email,
         bubl_id: bubl_id,
         type: "request",
@@ -486,11 +486,11 @@ app.post("/bublleave", verifyToken, async (req, res) => {
     // filter out user from likes
     const pictures = await Picture.find({ bubl_id: bubl_id });
     for (const picture of pictures) {
-      await Picture.updateOne({ $pull: { likes: profile_id } });
+      await picture.updateOne({ $pull: { likes: profile_id } });
     }
 
     await bubl.save();
-
+    io.to(bubl_id).emit("photoUpdate");
     res.status(200).json("Successfully left bubl");
   } catch (error) {
     res.status(500).json({ error: "Bubl join failed" });
@@ -505,13 +505,15 @@ app.post("/photodelete", verifyToken, async (req, res) => {
     const { picture_id } = req.body;
     const { profile_id } = req.profile_id;
 
-    // make sure this is the owner of the photo.
+    // make sure this is the owner of the photo, or an admin.
     const pic = await Picture.findOne({ picture_id: picture_id });
-    if (pic.creator_id !== profile_id) {
+    const bubl = await Bubl.findOne({ bubl_id: pic.bubl_id });
+    if (pic.creator_id !== profile_id && !bubl.admins.includes(profile_id)) {
       return res
         .status(400)
         .json({ error: "You cant delete this photo, you are not the owner." });
     }
+
     // delete the photo.
     await Picture.deleteOne({ picture_id: picture_id });
     io.to(pic.bubl_id).emit("photoUpdate");
@@ -560,11 +562,14 @@ app.post(
   upload.array("photos", 3),
   async (req, res) => {
     try {
-      const { photoname, photodesc, bubl_id } = req.body;
+      // Extract data from the request body and files
+      const { photoname, photodesc, bubl_id, photo_group } = req.body;
       const { profile_id } = req.profile_id;
 
+      // Find the bubl and user
       const bubl = await Bubl.findOne({ bubl_id: bubl_id });
       if (!bubl) return res.status(404).json({ error: "Bubl doesn't exist." });
+      // console.log("here");
 
       const user = await Profile.findOne({ profile_id: profile_id });
       if (!user) return res.status(404).json({ error: "User doesn't exist." });
@@ -573,12 +578,13 @@ app.post(
         return res.status(400).send("No files uploaded.");
 
       const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
-      const uploadedPhotos = [];
-      console.log(req.files);
 
+      // Add photos and update storage
       for (const file of req.files) {
         if (!allowedMimeTypes.includes(file.mimetype)) {
-          return res.status(400).send("Uploaded file is not a valid photo.");
+          return res
+            .status(400)
+            .json({ error: "Uploaded file is not a valid photo." });
         }
 
         const picture_id = "picture_" + crypto.randomUUID();
@@ -598,16 +604,20 @@ app.post(
           creator_id: profile_id,
           likes: [],
           bubl_id,
+          num_bytes: file.size,
+          photo_group: photo_group,
           data: data,
         });
-
-        uploadedPhotos.push(newPhoto);
+        await newPhoto.save();
       }
 
-      await Picture.insertMany(uploadedPhotos);
+      // Update bubl storage
+      await bubl.save();
       io.to(bubl_id).emit("photoUpdate");
       return res.status(200).json({ message: "Photos uploaded successfully!" });
     } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(500).json({ error: "Error uploading photos." });
     }
   }
@@ -637,6 +647,8 @@ app.post("/bublphotos", verifyToken, async (req, res) => {
     if (!inMembers && !inAdmins) {
       return res.status(400).json("Error");
     }
+
+    const role = bubl.admins.includes(profile_id) ? "admin" : "member";
 
     const pictures = await Picture.find({ bubl_id: bubl_id });
     const returnArr = await Promise.all(
@@ -668,6 +680,8 @@ app.post("/bublphotos", verifyToken, async (req, res) => {
       displayName: bubl.name,
       returnArr: returnArr,
       likedPhotos: likedPhotos,
+      profile_id: profile_id,
+      role: role,
     });
   } catch (error) {
     return res.status(500).json({ error: "Failed to retrieve bubl photos." });
@@ -806,7 +820,7 @@ app.post("/invite", verifyToken, async (req, res) => {
       await new InviteToken({
         token,
         sender_id: sender.profile_id,
-        receiver_id: receiver.profile_id,
+        // receiver_id: receiver.profile_id,
         email,
         bubl_id,
         type: "invite",
@@ -861,6 +875,7 @@ app.post("/invite", verifyToken, async (req, res) => {
       link: link,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to send invite" });
   }
 });
@@ -891,16 +906,22 @@ app.get("/usersinvites", verifyToken, async (req, res) => {
 
 app.post("/bublrequests", verifyToken, async (req, res) => {
   const { profile_id } = req.profile_id;
-  const { bubl_id } = req.body;
-  const bubl = await Bubl.findOne({ bubl_id: bubl_id });
-  if (!bubl) {
-    return res.status(404).json({ error: "Could not find bubl." });
-  }
-
-  const ret = await InviteToken.find({ bubl_id: bubl_id, type: "request" });
-  const returnArr = ret.map((val) => {
-    return val.email;
+  const requests = await InviteToken.find({
+    receiver_id: profile_id,
+    type: "request",
   });
+
+  const returnArr = await Promise.all(
+    requests.map(async (request) => {
+      const sender = await Profile.findOne({ profile_id: request.sender_id });
+      const bubl = await Bubl.findOne({ bubl_id: request.bubl_id });
+      return {
+        sender: sender.email,
+        bubl: bubl.name,
+        bubl_id: bubl.bubl_id,
+      };
+    })
+  );
   return res.status(200).json(returnArr || []);
 });
 
@@ -1051,7 +1072,11 @@ app.post("/mybubls", verifyToken, async (req, res) => {
 
     return res
       .status(200)
-      .json({ displayName: username, bubls_profile: bublsWithRole });
+      .json({
+        displayName: username,
+        bubls_profile: bublsWithRole,
+        owned_bubls: bublsWithRole.filter((bubl) => bubl.role === "creator"),
+      });
   } catch (error) {}
 });
 
@@ -1186,20 +1211,114 @@ app.post("/bubledit", verifyToken, async (req, res) => {
   }
 });
 
-// // Endpoint for debugging. Returns profiles list as json.
-// app.get("/getusers", verifyToken, (_, res) => {
-//   res.json(Profile.find());
-// });
+// End point to add a new photo group
+app.post("/addphotogroup", verifyToken, async (req, res) => {
+  try {
+    const { group_name, bubl_id } = req.body;
+    const { profile_id } = req.profile_id;
 
-// // Endpoint for debugging. Returns bubls list as json.
-// app.get("/getbubls", verifyToken, (_, res) => {
-//   res.json(Bubl.find());
-// });
+    // check if the bubl exists
+    const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+    if (!bubl) {
+      return res.status(404).json({ error: "Bubl not found" });
+    }
+    // check that the user exists
+    const user = await Profile.findOne({ profile_id: profile_id });
+    if (!user) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+    // check if a group with that name already exists in the bubl.
+    if (bubl.photo_groups.includes(group_name)) {
+      return res.status(400).json({
+        error:
+          "That group name already exists in the bubl. Please choose a different name",
+      });
+    }
+    // otherwise, add the group_name to the photo_groups array.
+    bubl.photo_groups.push(group_name);
+    await bubl.save();
 
-// // Endpoint for debugging.
-// app.get("/getpics", verifyToken, (_, res) => {
-//   res.json(Picture.find());
-// });
+    io.to(bubl_id).emit("photoUpdate");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/getbublphotogroups", verifyToken, async (req, res) => {
+  const { profile_id } = req.profile_id;
+  const { bubl_id } = req.body;
+
+  // Check bubl and user exist.
+  const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+  const user = await Profile.findOne({ profile_id: profile_id });
+  if (!bubl || !user) {
+    return res
+      .status(404)
+      .json({ error: "Could not find bubl or user. Try again." });
+  }
+
+  // Check that the user is a part of the bubl.
+  if (!bubl.members.includes(profile_id) && !bubl.admins.includes(profile_id)) {
+    return res.status(400).json({
+      error:
+        "You are not a part of this bubl. You cannot get the photo groups.",
+    });
+  }
+  let returnArr = [];
+  const promises = bubl.photo_groups.map(async (photo_group) => {
+    const numPhotos = await Picture.find({ photo_group: photo_group });
+    return {
+      photo_group: photo_group,
+      numPhotos: numPhotos.length,
+      numLikes: numPhotos
+        .map((photo) => photo.likes.length)
+        .reduce((acc, cur) => acc + cur, 0),
+    };
+  });
+  await Promise.all(promises)
+    .then((results) => {
+      returnArr = results;
+      // console.log(returnArr);
+    })
+    .catch((error) => {
+      console.error("Error fetching numPhotos.", error);
+    });
+
+  // otherwise, they are in the bubl, return the photo groups.
+  return res.status(200).json({ returnArr: returnArr });
+});
+// End point to delete an existing photo group
+app.post("/deletephotogroup", verifyToken, async (req, res) => {
+  try {
+    // Extract bubl_id and group_name from the request body
+    const { bubl_id, group_name } = req.body;
+    // console.log(bubl_id, "\n", group_name);
+    // Find the Bubl document by bubl_id and profile_id and remove the group_name from photo_groups array
+    const bubl = await Bubl.findOne({ bubl_id: bubl_id });
+    if (!bubl) {
+      return res.status(404).json({ error: "Bubl not found. " });
+    }
+    bubl.photo_groups = bubl.photo_groups.filter(
+      (group) => group !== group_name
+    );
+    // delete all photos in this photo group and bookkeep their sizes in the bubl
+    // await Picture.deleteMany({ photo_group: group_name });
+    await Picture.deleteMany({ photo_group: group_name });
+    await bubl.save();
+
+    io.to(bubl_id).emit("photoUpdate");
+    res.status(200).json({ message: "Photo group deleted successfully." });
+  } catch (error) {
+    // Handle errors
+    console.error("Error deleting photo group:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// End point for editing a photo group
+app.post("editphotogroup", verifyToken, async (req, res) => {
+  // TO-DO
+});
 
 // Start the server after resetting the database
 resetDatabase().then(() => {

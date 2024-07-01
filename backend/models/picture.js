@@ -7,7 +7,7 @@ const pictureSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    photoname: { type: String, required: true },
+    photoname: { type: String, required: false },
     description: { type: String, required: false, default: "" },
     tags: [{ type: String, required: false }], // added here but not implemented anywhere else.
     creator_id: {
@@ -20,11 +20,16 @@ const pictureSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    photo_group: {
+      type: String,
+      required: true,
+    },
     data: {
       bytes: { type: String },
       mimeType: { type: String },
       filename: { type: String },
     },
+    num_bytes: { type: Number, required: true },
     start_date: { type: Date, required: true, default: Date.now },
     end_date: { type: Date, required: false, expires: 0 },
   },

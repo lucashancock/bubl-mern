@@ -90,7 +90,7 @@ function CreateJoinModal({ closeModal, handleGetBubls }) {
         <div className="mt-auto">
           <button
             onClick={handleClose}
-            className="bg-gray-500 text-white px-4 py-2 w-full rounded-2xl hover:bg-gray-700 transition duration-300"
+            className="bg-white m-1 text-black outline z-50  outline-black outline-2  px-4 py-2 w-full rounded-2xl transition duration-300"
           >
             close
           </button>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { hostname } from "./App";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function CreateBubl({ onSuccess }) {
   const [newBublName, setNewBublName] = useState("");
@@ -42,17 +42,9 @@ function CreateBubl({ onSuccess }) {
         { headers: { Authorization: token } }
       );
 
-      setNewBublName(""); // Clear the input field
-      setSelectedDescription("");
-      setSelectedPrivacy("");
-      setSelectedSize("");
       toast.success("Successful bubl creation!");
       onSuccess(); // Invoke onSuccess callback when successful
     } catch (error) {
-      setNewBublName(""); // Clear the input field
-      setSelectedDescription("");
-      setSelectedPrivacy("");
-      setSelectedSize("");
       toast.error("Failed to create bubl. Try again.");
     }
   };

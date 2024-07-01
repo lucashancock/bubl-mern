@@ -1,9 +1,9 @@
 const fs = require("fs");
 const connectDB = require("./db");
-const Picture = require("./models/picture");
-const Profile = require("./models/profile");
-const Bubl = require("./models/bubl");
-const InviteToken = require("./models/invitetoken");
+const Picture = require("../models/picture");
+const Profile = require("../models/profile");
+const Bubl = require("../models/bubl");
+const InviteToken = require("../models/invitetoken");
 
 const mongoose = require("mongoose");
 
@@ -13,9 +13,13 @@ async function resetDatabase() {
     await connectDB();
 
     // Read JSON files
-    const profilesData = JSON.parse(fs.readFileSync("profiles.json", "utf8"));
-    const bublsData = JSON.parse(fs.readFileSync("bubls.json", "utf8"));
-    const picturesData = JSON.parse(fs.readFileSync("pictures.json", "utf8"));
+    const profilesData = JSON.parse(
+      fs.readFileSync("./data/profiles.json", "utf8")
+    );
+    const bublsData = JSON.parse(fs.readFileSync("./data/bubls.json", "utf8"));
+    const picturesData = JSON.parse(
+      fs.readFileSync("./data/pictures.json", "utf8")
+    );
 
     // Delete existing data
     await Profile.deleteMany({});
@@ -25,7 +29,7 @@ async function resetDatabase() {
 
     await Profile.insertMany(profilesData);
     await Bubl.insertMany(bublsData);
-    await Picture.insertMany(picturesData);
+    // await Picture.insertMany(picturesData);
 
     console.log("Database reset successfully");
   } catch (error) {

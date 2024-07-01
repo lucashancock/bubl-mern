@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import Banner2 from "./Components/Banner2";
 import { hostname } from "./App";
 import toast, { Toaster } from "react-hot-toast";
+import NavMenu from "./Components/NavMenu";
 
 const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null);
@@ -15,6 +15,7 @@ const Profile = ({ onLogout }) => {
   const [newPassword, setNewPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const navigate = useNavigate();
+  const [isMenuExpanded, setIsMenuExpanded] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -78,8 +79,24 @@ const Profile = ({ onLogout }) => {
   if (loading) {
     return (
       <>
-        <Banner2 />
-        <div>Loading...</div>
+        <div className="flex flex-col h-screen">
+          <Banner2 />
+          <div className="flex flex-grow">
+            <div
+              className={`bg-gray-700 text-white transition-all duration-300 ${
+                isMenuExpanded ? "w-56" : "w-16"
+              }`}
+            >
+              <NavMenu
+                isMenuExpanded={isMenuExpanded}
+                setIsMenuExpanded={setIsMenuExpanded}
+              />
+            </div>
+            <div className="flex-col flex-grow p-4 overflow-auto">
+              loading...
+            </div>
+          </div>
+        </div>
       </>
     );
   }
@@ -87,8 +104,24 @@ const Profile = ({ onLogout }) => {
   if (!profile) {
     return (
       <>
-        <Banner2 />
-        <div>Profile not found</div>;
+        <div className="flex flex-col h-screen">
+          <Banner2 />
+          <div className="flex flex-grow">
+            <div
+              className={`bg-gray-700 text-white transition-all duration-300 ${
+                isMenuExpanded ? "w-56" : "w-16"
+              }`}
+            >
+              <NavMenu
+                isMenuExpanded={isMenuExpanded}
+                setIsMenuExpanded={setIsMenuExpanded}
+              />
+            </div>
+            <div className="flex-col flex-grow p-4 overflow-auto">
+              profile not found
+            </div>
+          </div>
+        </div>
       </>
     );
   }
@@ -115,77 +148,88 @@ const Profile = ({ onLogout }) => {
           },
         }}
       />
-      <Banner2 />
-      <div className="flex items-center justify-between bg-white py-5 px-4">
-        <div className="border-t border-gray-600 flex-grow"></div>
-        <div className="mx-4 text-xl font-semibold">profile</div>
-        <div className="border-t border-gray-600 flex-grow"></div>
-      </div>
-      {/* Back arrow */}
-      <div className="flex mb-3">
-        <div className="flex flex-1 w-auto justify-start ml-1">
-          <span className="flex items-center font-semibold hover:bg-gray-300 rounded-2xl px-4 py-2 ml-3 transition duration-300 ease-in-out">
-            <i className="fas fa-chevron-left mr-2"></i>
-            <Link to="/bubls">back to bubls</Link>
-          </span>
-        </div>
-      </div>
-      <div className="p-4 border rounded-2xl m-2 ">
-        <h1 className="text-xl font-bold text-center ml-2 mb-4">user info</h1>
-        <div className="mb-4 border rounded-2xl p-3">
-          {/* <p><strong>user ID:</strong> {profile.profile_id}</p> */}
-          <p>
-            <strong>username:</strong> {profile.username}
-          </p>
-          <p>
-            <strong>email:</strong> {profile.email}
-          </p>
-          <p>
-            <strong>tier:</strong> platinum
-          </p>
-        </div>
 
-        <div className="mb-4">
-          <h2 className="text-xl text-center font-bold ml-2 mb-2">
-            update profile
-          </h2>
-          <label className="block ml-2">new username:</label>
-          <input
-            type="text"
-            value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
-            className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 mb-4 w-full"
-          />
-          <label className="block ml-2">new email:</label>
-          <input
-            type="email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 mb-4 w-full"
-          />
-          <button
-            onClick={handleUpdateProfile}
-            className="text-white bg-black border rounded-2xl font-bold py-2 px-4 transition duration-300"
+      <div className="flex flex-col h-screen">
+        <Banner2 />
+        <div className="flex flex-grow">
+          <div
+            className={`bg-gray-700 text-white transition-all duration-300 ${
+              isMenuExpanded ? "w-56" : "w-16"
+            }`}
           >
-            update profile
-          </button>
-        </div>
+            <NavMenu
+              isMenuExpanded={isMenuExpanded}
+              setIsMenuExpanded={setIsMenuExpanded}
+            />
+          </div>
+          <div className="flex-col flex-grow p-4 overflow-auto">
+            <div className="flex items-center justify-between bg-white py-5 px-4">
+              <div className="border-t border-gray-600 flex-grow"></div>
+              <div className="mx-4 text-xl font-semibold">profile</div>
+              <div className="border-t border-gray-600 flex-grow"></div>
+            </div>
 
-        <div className="mb-4">
-          <h2 className="text-xl font-bold ml-2 mb-2">delete profile</h2>
-          <label className="block ml-2">password:</label>
-          <input
-            type="password"
-            placeholder="please retype your password to confirm deletion"
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 mb-4 w-full"
-          />
-          <button
-            onClick={handleProfileDelete}
-            className="bg-red-950 hover:bg-red-950 text-white font-bold py-2 px-4 rounded-2xl transition duration-300"
-          >
-            delete profile
-          </button>
+            <div className="p-4 border rounded-2xl m-2 ">
+              <h1 className="text-xl font-bold text-center ml-2 mb-4">
+                user info
+              </h1>
+              <div className="mb-4 border rounded-2xl p-3">
+                {/* <p><strong>user ID:</strong> {profile.profile_id}</p> */}
+                <p>
+                  <strong>username:</strong> {profile.username}
+                </p>
+                <p>
+                  <strong>email:</strong> {profile.email}
+                </p>
+                <p>
+                  <strong>tier:</strong> platinum
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <h2 className="text-xl text-center font-bold ml-2 mb-2">
+                  update profile
+                </h2>
+                <label className="block ml-2">new username:</label>
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 mb-4 w-full"
+                />
+                <label className="block ml-2">new email:</label>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 mb-4 w-full"
+                />
+                <button
+                  onClick={handleUpdateProfile}
+                  className="text-white bg-black border rounded-2xl font-bold py-2 px-4 transition duration-300"
+                >
+                  update profile
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <h2 className="text-xl font-bold ml-2 mb-2">delete profile</h2>
+                <label className="block ml-2">password:</label>
+                <input
+                  type="password"
+                  placeholder="please retype your password to confirm deletion"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="border border-gray-300 rounded-2xl px-3 py-2 mt-1 mb-4 w-full"
+                />
+                <button
+                  onClick={handleProfileDelete}
+                  className="bg-red-950 hover:bg-red-950 text-white font-bold py-2 px-4 rounded-2xl transition duration-300"
+                >
+                  delete profile
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
