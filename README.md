@@ -4,6 +4,9 @@
 
 As it stands, this is a side project of mine to keep my skills sharp and also learn some new things over the summer of 2024. The web app consists of both a frontend and a backend, as well as a database, photo encryption, socket-based connections, complex state management, and authentication using JSON Web Tokens. The purpose of the app is to explore a missing niche in the context of photo sharing. That is, there often lacks some sort of unified software for photo sharing between and within groups, events, families, friends, etc. Bubl aims to provide temporary storage for such contexts with a seamless and integrated UI experience. This web application built mainly with React is a prototype of a more fully featured utility that may be developed soon for iOS devices. In the future, I hope for Bubl to be iOS application, where users can use its unified platform to share photos to one space, where all of your friends or other eventgoers can access them. Integration with other social media platforms on top of just your contacts like Instagram and Snapchat pose great opportunity for an app utility like Bubl, due to the rising popularity of using these apps as one's main form of communication. More detail on the app and the development process is as follows.
 
+### Demo (WIP)
+
+https://github.com/lucashancock/bubl-mern/assets/111306378/e1b2247d-181f-45ca-bd67-a6d68245947a
 
 ### Technology Stack
 
